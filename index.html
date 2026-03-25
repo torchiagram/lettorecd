@@ -8,13 +8,13 @@
 </head>
 <body>
     <div class="dark-overlay" id="darkOverlay"></div>
-    
+
     <div class="glow-effect" id="glowEffect">
         <div class="circle c1"></div>
         <div class="circle c2"></div>
         <div class="circle c3"></div>
     </div>
-    
+
     <div class="app-wrapper">
         <header><h1 class="main-title">Discman</h1></header>
         <main class="player-container">
@@ -27,13 +27,11 @@
                 <button id="prevBtn" class="neu-btn btn-sm">
                     <img src="img/prev.png" width="20" alt="Indietro">
                 </button>
-                
                 <button id="playBtn" class="neu-btn btn-lg">
                     <div id="playIconContainer">
                         <img src="img/play.png" id="playIcon" width="30">
                     </div>
                 </button>
-                
                 <button id="nextBtn" class="neu-btn btn-sm">
                     <img src="img/next.png" width="20" alt="Avanti">
                 </button>
@@ -46,8 +44,11 @@
         </footer>
     </div>
 
-    <!-- POPUP AUDIO - statico nel DOM, nascosto di default -->
-    <!-- CRITICO: deve essere nell'HTML, NON creato da JS, altrimenti iOS non sblocca l'audio -->
+    <!--
+        POPUP AUDIO — DEVE STARE NELL'HTML, NON CREATO DA JS.
+        iOS sblocca l'audio solo se il tap avviene su un elemento
+        che esisteva nel DOM al momento del caricamento della pagina.
+    -->
     <div id="permPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:999999; align-items:center; justify-content:center; background:rgba(0,0,0,0.75); touch-action:manipulation;">
         <div style="background:#dcdcdc; border-radius:24px; padding:32px 28px; max-width:280px; width:80%; text-align:center; box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff; display:flex; flex-direction:column; gap:16px; align-items:center;">
             <div style="font-size:48px;">💿</div>
@@ -62,6 +63,7 @@
         width="0" height="0" style="display:none" allow="autoplay">
     </iframe>
 
+    <!-- Audio silenzioso per sblocco contesto audio iOS -->
     <audio id="silentAudio" src="data:audio/mp3;base64,//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" preload="auto"></audio>
 
     <script src="https://w.soundcloud.com/player/api.js"></script>
