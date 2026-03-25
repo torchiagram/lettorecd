@@ -79,7 +79,6 @@ const playlists = [
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // --- Elementi DOM ---
     var scroller      = document.getElementById('cdScroller');
     var dropZone      = document.getElementById('dropZone');
     var glow          = document.getElementById('glowEffect');
@@ -102,14 +101,20 @@ document.addEventListener('DOMContentLoaded', function () {
     var popupOpen          = false;
     var pendingCallback    = null;
 
-    // --- Inizializza Widget SC ---
+    // --- Init Widget SC ---
     window.addEventListener('load', function () {
         widget = SC.Widget(document.getElementById('sc-widget'));
+        // Quando la traccia è pronta (READY) forza il play — auto_play non sempre basta su iOS
+        widget.bind(SC.Widget.Events.READY, function () {
+            if (isPlaying) {
+                widget.play();
+            }
+        });
         widget.bind(SC.Widget.Events.FINISH, nextTrack);
         alignGlow();
     });
 
-    // --- Popola Scroller con i CD ---
+    // --- Popola scroller ---
     playlists.forEach(function (_, i) {
         var div = document.createElement('div');
         div.className = 'cd-item';
@@ -122,22 +127,27 @@ document.addEventListener('DOMContentLoaded', function () {
         scroller.appendChild(div);
     });
 
-    // --- Carica traccia SC ---
+    // --- Carica traccia e forza play ---
     function loadTrack(plIdx, sIdx) {
         var song = playlists[plIdx].songs[sIdx];
         trackTitle.innerText = song.title;
         if (!widget) return;
+
+        // Carica con auto_play:true E dopo READY forza widget.play() (vedi bind sopra)
         widget.load(song.url, {
             auto_play: true,
             show_artwork: false, buying: false, liking: false,
             download: false, sharing: false, show_comments: false,
             show_user: false, show_reposts: false,
         });
+
+        // Forza play anche con timeout come fallback ulteriore (SC a volte è lento)
+        setTimeout(function () {
+            if (isPlaying && widget) widget.play();
+        }, 1500);
     }
 
-    // --- POPUP: elementi già nel DOM dall'HTML ---
-    // iOS riconosce il tap solo su elementi nativi esistenti al load
-
+    // --- Popup ---
     function showPopup(callback) {
         pendingCallback = callback;
         popupOpen = true;
@@ -152,16 +162,16 @@ document.addEventListener('DOMContentLoaded', function () {
     function doUnlock() {
         if (audioUnlocked) return;
         audioUnlocked = true;
+        // Sblocca contesto audio iOS con gesto diretto
         silentAudio.play().catch(function () {});
         hidePopup();
         if (pendingCallback) {
             var cb = pendingCallback;
             pendingCallback = null;
-            cb();
+            cb(); // esegue play() — avviene dentro il gesto utente, iOS lo accetta
         }
     }
 
-    // Sia touchend che click — preventDefault su touchend per evitare doppio fire
     permBtn.addEventListener('touchend', function (e) {
         e.preventDefault();
         doUnlock();
@@ -177,9 +187,11 @@ document.addEventListener('DOMContentLoaded', function () {
         activeWrapper.innerHTML = '<img src="img/playlist_' + (currentPlaylistIdx + 1) + '.png" id="spinningCd">';
 
         var play = function () {
-            loadTrack(currentPlaylistIdx, currentSongIdx);
             isPlaying = true;
             if (playIcon) playIcon.src = 'img/pause.png';
+            var cd = document.getElementById('spinningCd');
+            if (cd) cd.classList.remove('paused');
+            loadTrack(currentPlaylistIdx, currentSongIdx);
         };
 
         if (!audioUnlocked) {
@@ -189,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- Controlli player ---
+    // --- Play / Pausa ---
     playBtn.addEventListener('click', function () {
         var cd = document.getElementById('spinningCd');
         if (!widget || currentPlaylistIdx === -1) return;
@@ -206,28 +218,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // --- Next / Prev: carica e parte subito ---
     function nextTrack() {
         if (currentPlaylistIdx === -1) return;
         currentSongIdx++;
         if (currentSongIdx >= playlists[currentPlaylistIdx].songs.length) currentSongIdx = 0;
-        loadTrack(currentPlaylistIdx, currentSongIdx);
         isPlaying = true;
         if (playIcon) playIcon.src = 'img/pause.png';
+        var cd = document.getElementById('spinningCd');
+        if (cd) cd.classList.remove('paused');
+        loadTrack(currentPlaylistIdx, currentSongIdx);
     }
 
     function prevTrack() {
         if (currentPlaylistIdx === -1) return;
         currentSongIdx--;
         if (currentSongIdx < 0) currentSongIdx = playlists[currentPlaylistIdx].songs.length - 1;
-        loadTrack(currentPlaylistIdx, currentSongIdx);
         isPlaying = true;
         if (playIcon) playIcon.src = 'img/pause.png';
+        var cd = document.getElementById('spinningCd');
+        if (cd) cd.classList.remove('paused');
+        loadTrack(currentPlaylistIdx, currentSongIdx);
     }
 
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
 
-    // --- Glow alignment ---
+    // --- Glow ---
     function alignGlow() {
         var rect = dropZone.getBoundingClientRect();
         glow.style.top  = (rect.top  + rect.height / 2) + 'px';
@@ -240,10 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (popupOpen) return;
         var target = e.target.closest('.cd-img');
         if (!target) return;
-
-        // Su touchstart previeni scroll dello scroller durante drag
         if (e.type === 'touchstart') e.preventDefault();
-
         isDragging = true;
         var idx = target.dataset.index;
         dragClone = target.cloneNode(true);
@@ -286,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function () {
         glow.classList.remove('active');
     }
 
-    // --- Attacca listener drag ---
     scroller.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove',   moveDrag,  { passive: false });
     window.addEventListener('touchend',    endDrag);
@@ -294,4 +307,4 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('mousemove',   moveDrag);
     window.addEventListener('mouseup',     endDrag);
 
-}); // fine DOMContentLoaded
+});
