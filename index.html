@@ -7,15 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Tap iniziale per sbloccare audio su Safari -->
-    <div class="consent-overlay" id="consentOverlay">
-        <div class="consent-modal">
-            <div class="consent-cd-icon">💿</div>
-            <h2 class="consent-title">Discman</h2>
-            <button class="consent-btn" id="consentBtn">Tocca per iniziare</button>
-        </div>
-    </div>
-
     <div class="dark-overlay" id="darkOverlay"></div>
     
     <div class="glow-effect" id="glowEffect">
@@ -58,7 +49,7 @@
     <!-- SoundCloud Widget nascosto (sostituisce <audio>) -->
     <iframe id="sc-widget"
         src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false"
-        width="0" height="0" style="display:none" allow="autoplay">
+        style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;" allow="autoplay">
     </iframe>
 
     <script src="https://w.soundcloud.com/player/api.js"></script>
