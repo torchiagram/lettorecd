@@ -77,234 +77,257 @@ const playlists = [
     }
 ];
 
+const playlists = [/* <-- LASCIA IL TUO ARRAY IDENTICO */];
+
 document.addEventListener('DOMContentLoaded', function () {
 
-    var scroller      = document.getElementById('cdScroller');
-    var dropZone      = document.getElementById('dropZone');
-    var glow          = document.getElementById('glowEffect');
-    var overlay       = document.getElementById('darkOverlay');
-    var activeWrapper = document.getElementById('activeCdWrapper');
-    var playBtn       = document.getElementById('playBtn');
-    var playIcon      = document.getElementById('playIcon');
-    var trackTitle    = document.getElementById('trackTitle');
-    var silentAudio   = document.getElementById('silentAudio');
-    var permPopup     = document.getElementById('permPopup');
-    var permBtn       = document.getElementById('permBtn');
+    const scroller      = document.getElementById('cdScroller');
+    const dropZone      = document.getElementById('dropZone');
+    const glow          = document.getElementById('glowEffect');
+    const overlay       = document.getElementById('darkOverlay');
+    const activeWrapper = document.getElementById('activeCdWrapper');
+    const playBtn       = document.getElementById('playBtn');
+    const playIcon      = document.getElementById('playIcon');
+    const trackTitle    = document.getElementById('trackTitle');
+    const silentAudio   = document.getElementById('silentAudio');
+    const permPopup     = document.getElementById('permPopup');
+    const permBtn       = document.getElementById('permBtn');
 
-    var dragClone          = null;
-    var currentPlaylistIdx = -1;
-    var currentSongIdx     = 0;
-    var isDragging         = false;
-    var isPlaying          = false;
-    var widget             = null;
-    var audioUnlocked      = false;
-    var popupOpen          = false;
-    var pendingCallback    = null;
+    let widget = null;
 
-    // --- Init Widget SC ---
+    let currentPlaylistIdx = -1;
+    let currentSongIdx     = 0;
+
+    let isPlaying = false;
+    let isDragging = false;
+
+    let dragClone = null;
+
+    let audioUnlocked = false;
+
+    // =========================
+    // 🔥 INIT SOUND CLOUD
+    // =========================
     window.addEventListener('load', function () {
         widget = SC.Widget(document.getElementById('sc-widget'));
-        // Quando la traccia è pronta (READY) forza il play — auto_play non sempre basta su iOS
-        widget.bind(SC.Widget.Events.READY, function () {
-            if (isPlaying) {
-                widget.play();
-            }
-        });
+
         widget.bind(SC.Widget.Events.FINISH, nextTrack);
-        alignGlow();
     });
 
-    // --- Popola scroller ---
-    playlists.forEach(function (_, i) {
-        var div = document.createElement('div');
-        div.className = 'cd-item';
-        var img = document.createElement('img');
-        img.src = 'img/playlist_' + (i + 1) + '.png';
-        img.dataset.index = i;
-        img.className = 'cd-img';
-        img.draggable = false;
-        div.appendChild(img);
-        scroller.appendChild(div);
-    });
-
-    // --- Carica traccia e forza play ---
-    function loadTrack(plIdx, sIdx) {
-        var song = playlists[plIdx].songs[sIdx];
-        trackTitle.innerText = song.title;
-        if (!widget) return;
-
-        // Carica con auto_play:true E dopo READY forza widget.play() (vedi bind sopra)
-        widget.load(song.url, {
-            auto_play: true,
-            show_artwork: false, buying: false, liking: false,
-            download: false, sharing: false, show_comments: false,
-            show_user: false, show_reposts: false,
-        });
-
-        // Forza play anche con timeout come fallback ulteriore (SC a volte è lento)
-        setTimeout(function () {
-            if (isPlaying && widget) widget.play();
-        }, 1500);
-    }
-
-    // --- Popup ---
-    function showPopup(callback) {
-        pendingCallback = callback;
-        popupOpen = true;
-        permPopup.style.display = 'flex';
-    }
-
-    function hidePopup() {
-        popupOpen = false;
-        permPopup.style.display = 'none';
-    }
-
-    function doUnlock() {
-        if (audioUnlocked) return;
-        audioUnlocked = true;
-        // Sblocca contesto audio iOS con gesto diretto
-        silentAudio.play().catch(function () {});
-        hidePopup();
-        if (pendingCallback) {
-            var cb = pendingCallback;
-            pendingCallback = null;
-            cb(); // esegue play() — avviene dentro il gesto utente, iOS lo accetta
+    // =========================
+    // 🔥 SBLOCCO AUDIO iOS (PRO)
+    // =========================
+    function unlockAudioIOS(callback) {
+        if (audioUnlocked) {
+            callback && callback();
+            return;
         }
-    }
 
-    permBtn.addEventListener('touchend', function (e) {
-        e.preventDefault();
-        doUnlock();
-    });
-    permBtn.addEventListener('click', function () {
-        doUnlock();
-    });
+        permPopup.style.display = 'flex';
 
-    // --- Inserisci CD ---
-    function insertCD(index) {
-        currentPlaylistIdx = parseInt(index);
-        currentSongIdx = 0;
-        activeWrapper.innerHTML = '<img src="img/playlist_' + (currentPlaylistIdx + 1) + '.png" id="spinningCd">';
+        const unlock = () => {
+            audioUnlocked = true;
 
-        var play = function () {
-            isPlaying = true;
-            if (playIcon) playIcon.src = 'img/pause.png';
-            var cd = document.getElementById('spinningCd');
-            if (cd) cd.classList.remove('paused');
-            loadTrack(currentPlaylistIdx, currentSongIdx);
+            // 🔑 1. Sblocca contesto audio
+            silentAudio.play().catch(()=>{});
+
+            // 🔑 2. Sblocca SoundCloud (CRUCIALE)
+            widget.load(playlists[0].songs[0].url);
+
+            widget.play();
+            widget.pause();
+
+            permPopup.style.display = 'none';
+
+            callback && callback();
         };
 
-        if (!audioUnlocked) {
-            showPopup(play);
-        } else {
-            play();
+        permBtn.onclick = unlock;
+        permBtn.ontouchend = (e) => {
+            e.preventDefault();
+            unlock();
+        };
+    }
+
+    // =========================
+    // 🎵 LOAD TRACK (PULITO)
+    // =========================
+    function loadTrack(plIdx, sIdx) {
+        const song = playlists[plIdx].songs[sIdx];
+
+        trackTitle.innerText = song.title;
+
+        widget.load(song.url);
+
+        if (isPlaying) {
+            widget.play();
         }
     }
 
-    // --- Play / Pausa ---
+    // =========================
+    // 💿 INSERT CD
+    // =========================
+    function insertCD(index) {
+        unlockAudioIOS(() => {
+
+            currentPlaylistIdx = parseInt(index);
+            currentSongIdx = 0;
+
+            activeWrapper.innerHTML =
+                `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
+
+            isPlaying = true;
+            playIcon.src = 'img/pause.png';
+
+            loadTrack(currentPlaylistIdx, currentSongIdx);
+        });
+    }
+
+    // =========================
+    // ▶ PLAY / PAUSE
+    // =========================
     playBtn.addEventListener('click', function () {
-        var cd = document.getElementById('spinningCd');
         if (!widget || currentPlaylistIdx === -1) return;
+
+        if (!audioUnlocked) {
+            unlockAudioIOS(() => playBtn.click());
+            return;
+        }
+
+        const cd = document.getElementById('spinningCd');
+
         if (isPlaying) {
             widget.pause();
             isPlaying = false;
-            if (playIcon) playIcon.src = 'img/play.png';
-            if (cd) cd.classList.add('paused');
+            playIcon.src = 'img/play.png';
+            cd && cd.classList.add('paused');
         } else {
             widget.play();
             isPlaying = true;
-            if (playIcon) playIcon.src = 'img/pause.png';
-            if (cd) cd.classList.remove('paused');
+            playIcon.src = 'img/pause.png';
+            cd && cd.classList.remove('paused');
         }
     });
 
-    // --- Next / Prev: carica e parte subito ---
+    // =========================
+    // ⏭ NEXT / PREV
+    // =========================
     function nextTrack() {
         if (currentPlaylistIdx === -1) return;
+
         currentSongIdx++;
-        if (currentSongIdx >= playlists[currentPlaylistIdx].songs.length) currentSongIdx = 0;
+        if (currentSongIdx >= playlists[currentPlaylistIdx].songs.length)
+            currentSongIdx = 0;
+
         isPlaying = true;
-        if (playIcon) playIcon.src = 'img/pause.png';
-        var cd = document.getElementById('spinningCd');
-        if (cd) cd.classList.remove('paused');
+        playIcon.src = 'img/pause.png';
+
         loadTrack(currentPlaylistIdx, currentSongIdx);
     }
 
     function prevTrack() {
         if (currentPlaylistIdx === -1) return;
+
         currentSongIdx--;
-        if (currentSongIdx < 0) currentSongIdx = playlists[currentPlaylistIdx].songs.length - 1;
+        if (currentSongIdx < 0)
+            currentSongIdx = playlists[currentPlaylistIdx].songs.length - 1;
+
         isPlaying = true;
-        if (playIcon) playIcon.src = 'img/pause.png';
-        var cd = document.getElementById('spinningCd');
-        if (cd) cd.classList.remove('paused');
+        playIcon.src = 'img/pause.png';
+
         loadTrack(currentPlaylistIdx, currentSongIdx);
     }
 
-    document.getElementById('nextBtn').addEventListener('click', nextTrack);
-    document.getElementById('prevBtn').addEventListener('click', prevTrack);
+    document.getElementById('nextBtn').addEventListener('click', prevTrack);
+    document.getElementById('prevBtn').addEventListener('click', nextTrack);
 
-    // --- Glow ---
-    function alignGlow() {
-        var rect = dropZone.getBoundingClientRect();
-        glow.style.top  = (rect.top  + rect.height / 2) + 'px';
-        glow.style.left = (rect.left + rect.width  / 2) + 'px';
-    }
-    window.addEventListener('resize', alignGlow);
-
-    // --- Drag & Drop ---
+    // =========================
+    // 🎯 DRAG & DROP (UGUALE)
+    // =========================
     function startDrag(e) {
-        if (popupOpen) return;
-        var target = e.target.closest('.cd-img');
+        const target = e.target.closest('.cd-img');
         if (!target) return;
+
         if (e.type === 'touchstart') e.preventDefault();
+
         isDragging = true;
-        var idx = target.dataset.index;
+
         dragClone = target.cloneNode(true);
         dragClone.id = 'draggingCD';
+
         document.body.appendChild(dragClone);
+
         target.classList.add('hidden');
+
         overlay.classList.add('active');
         glow.classList.add('active');
-        dragClone.dataset.tempIndex = idx;
+
+        dragClone.dataset.index = target.dataset.index;
+
         moveDrag(e);
     }
 
     function moveDrag(e) {
         if (!isDragging || !dragClone) return;
-        var x = e.type.indexOf('touch') !== -1 ? e.touches[0].clientX : e.clientX;
-        var y = e.type.indexOf('touch') !== -1 ? e.touches[0].clientY : e.clientY;
+
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+
         dragClone.style.left = (x - 70) + 'px';
         dragClone.style.top  = (y - 70) + 'px';
     }
 
     function endDrag(e) {
-        if (popupOpen) return;
-        if (!isDragging || !dragClone) return;
-        var x = e.type.indexOf('touch') !== -1 ? e.changedTouches[0].clientX : e.clientX;
-        var y = e.type.indexOf('touch') !== -1 ? e.changedTouches[0].clientY : e.clientY;
-        var rect = dropZone.getBoundingClientRect();
-        var droppedIndex = dragClone.dataset.tempIndex;
-        document.querySelectorAll('.cd-img').forEach(function (img) { img.classList.remove('hidden'); });
+        if (!isDragging) return;
+
+        const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+        const rect = dropZone.getBoundingClientRect();
+
+        const index = dragClone.dataset.index;
+
+        document.querySelectorAll('.cd-img')
+            .forEach(img => img.classList.remove('hidden'));
+
         if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
-            insertCD(droppedIndex);
+            insertCD(index);
         }
+
         cleanup();
     }
 
     function cleanup() {
-        if (dragClone) dragClone.remove();
-        dragClone  = null;
+        dragClone && dragClone.remove();
+        dragClone = null;
         isDragging = false;
+
         overlay.classList.remove('active');
         glow.classList.remove('active');
     }
 
     scroller.addEventListener('touchstart', startDrag, { passive: false });
-    window.addEventListener('touchmove',   moveDrag,  { passive: false });
-    window.addEventListener('touchend',    endDrag);
+    window.addEventListener('touchmove', moveDrag, { passive: false });
+    window.addEventListener('touchend', endDrag);
+
     scroller.addEventListener('mousedown', startDrag);
-    window.addEventListener('mousemove',   moveDrag);
-    window.addEventListener('mouseup',     endDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', endDrag);
+
+    // =========================
+    // 🎨 POPOLA SCROLLER
+    // =========================
+    playlists.forEach((_, i) => {
+        const div = document.createElement('div');
+        div.className = 'cd-item';
+
+        const img = document.createElement('img');
+        img.src = `img/playlist_${i + 1}.png`;
+        img.dataset.index = i;
+        img.className = 'cd-img';
+
+        div.appendChild(img);
+        scroller.appendChild(div);
+    });
 
 });
