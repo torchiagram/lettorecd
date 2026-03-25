@@ -212,6 +212,7 @@ function alignGlow() {
 window.onresize = alignGlow;
 
 function startDrag(e) {
+    if (document.getElementById('permYesBtn')) return; // popup aperto, non draggare
     const target = e.target.closest('.cd-img');
     if (!target) return;
     isDragging = true;
