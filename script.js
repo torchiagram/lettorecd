@@ -85,6 +85,7 @@ const activeWrapper = document.getElementById('activeCdWrapper');
 const playBtn       = document.getElementById('playBtn');
 const playIcon      = document.getElementById('playIcon');
 const trackTitle    = document.getElementById('trackTitle');
+const silentAudio   = document.getElementById('silentAudio');
 
 let dragClone          = null;
 let currentPlaylistIdx = -1;
@@ -93,14 +94,11 @@ let isDragging         = false;
 let isPlaying          = false;
 let widget             = null;
 let audioUnlocked      = false;
-let pendingPlay        = null; // { plIdx, sIdx } da riprodurre dopo sblocco
 
-// --- Inizializza SoundCloud Widget ---
+// --- Inizializza Widget ---
 function initWidget() {
     widget = SC.Widget(document.getElementById('sc-widget'));
-    widget.bind(SC.Widget.Events.FINISH, function () {
-        nextTrack();
-    });
+    widget.bind(SC.Widget.Events.FINISH, nextTrack);
 }
 window.addEventListener('load', initWidget);
 window.addEventListener('load', alignGlow);
@@ -113,60 +111,38 @@ playlists.forEach((_, i) => {
     scroller.appendChild(div);
 });
 
-// --- Carica e riproduci traccia ---
+// --- Carica traccia ---
 function loadTrack(plIdx, sIdx) {
     const song = playlists[plIdx].songs[sIdx];
     trackTitle.innerText = song.title;
     if (!widget) return;
     widget.load(song.url, {
         auto_play: true,
-        show_artwork: false,
-        buying: false,
-        liking: false,
-        download: false,
-        sharing: false,
-        show_comments: false,
-        show_user: false,
-        show_reposts: false,
+        show_artwork: false, buying: false, liking: false,
+        download: false, sharing: false, show_comments: false,
+        show_user: false, show_reposts: false,
     });
 }
 
-// --- Popup permesso audio ---
+// --- Popup permesso ---
 function showPermissionPopup(callback) {
     const popup = document.createElement('div');
-    popup.style.cssText = `
-        position:fixed;inset:0;z-index:9999;
-        display:flex;align-items:center;justify-content:center;
-        background:rgba(0,0,0,0.5);
-    `;
+    popup.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);`;
     popup.innerHTML = `
-        <div style="
-            background:var(--bg-color);border-radius:24px;
-            padding:32px 28px;max-width:280px;text-align:center;
-            box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;
-            display:flex;flex-direction:column;gap:16px;align-items:center;
-        ">
+        <div style="background:var(--bg-color);border-radius:24px;padding:32px 28px;max-width:280px;text-align:center;box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;display:flex;flex-direction:column;gap:16px;align-items:center;">
             <div style="font-size:48px">💿</div>
-            <p style="margin:0;font-weight:700;font-size:15px;line-height:1.5">
-                Vuoi permettere al browser di riprodurre musica?
-            </p>
-            <button id="permYesBtn" style="
-                border:none;cursor:pointer;background:var(--bg-color);
-                box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff;
-                border-radius:50px;padding:12px 28px;font-size:15px;font-weight:700;
-            ">▶ Sì, riproduci</button>
-        </div>
-    `;
+            <p style="margin:0;font-weight:700;font-size:15px;line-height:1.5">Vuoi permettere al browser di riprodurre musica?</p>
+            <button id="permYesBtn" style="border:none;cursor:pointer;background:var(--bg-color);box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff;border-radius:50px;padding:12px 28px;font-size:15px;font-weight:700;">▶ Sì, riproduci</button>
+        </div>`;
     document.body.appendChild(popup);
 
-    // Il click diretto su questo bottone sblocca Safari
     document.getElementById('permYesBtn').addEventListener('click', function () {
+        // 1. Suona audio nativo silenzioso — Safari sblocca il contesto audio della pagina
+        silentAudio.play().catch(() => {});
         audioUnlocked = true;
-        // Chiama play() DIRETTAMENTE nel click handler — questo è il gesto che Safari accetta
-        widget.play();
         popup.remove();
-        // Dopo un attimo carica la traccia vera (widget.load con auto_play:true)
-        setTimeout(callback, 100);
+        // 2. Ora carica e riproduci la traccia SC
+        callback();
     });
 }
 
@@ -177,17 +153,7 @@ function insertCD(index) {
     activeWrapper.innerHTML = `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
 
     if (!audioUnlocked) {
-        // Prima volta: prima carica silenziosamente, poi mostra popup
-        widget.load(playlists[currentPlaylistIdx].songs[0].url, {
-            auto_play: false,
-            show_artwork: false, buying: false, liking: false,
-            download: false, sharing: false, show_comments: false,
-            show_user: false, show_reposts: false,
-        });
-        trackTitle.innerText = playlists[currentPlaylistIdx].songs[0].title;
-
         showPermissionPopup(function () {
-            // Ora Safari è sbloccato, ricarica con auto_play:true
             loadTrack(currentPlaylistIdx, currentSongIdx);
             isPlaying = true;
             if (playIcon) playIcon.src = 'img/pause.png';
