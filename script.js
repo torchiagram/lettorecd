@@ -109,20 +109,35 @@ let widget             = null;
 function initWidget() {
     widget = SC.Widget(document.getElementById('sc-widget'));
 
-    widget.bind(SC.Widget.Events.READY, function () {
-        // Widget pronto: ora il click sblocca davvero l'audio su Safari
-        document.getElementById('consentBtn').addEventListener('click', function () {
-            widget.play();
-            setTimeout(() => widget.pause(), 200);
-            document.getElementById('consentOverlay').classList.add('hidden');
-        });
-    });
-
     widget.bind(SC.Widget.Events.FINISH, function () {
         nextTrack();
     });
 }
 window.addEventListener('load', initWidget);
+
+// --- Sblocca Audio Safari al tap iniziale ---
+document.getElementById('consentBtn').addEventListener('click', function () {
+    // 1. Sblocca AudioContext (metodo più affidabile su Safari)
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+        const ctx = new AudioContext();
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        ctx.resume();
+    }
+
+    // 2. Sblocca anche l'iframe SC con postMessage diretto
+    const iframe = document.getElementById('sc-widget');
+    iframe.contentWindow.postMessage(JSON.stringify({ method: 'play' }), '*');
+    setTimeout(() => {
+        iframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
+    }, 300);
+
+    document.getElementById('consentOverlay').classList.add('hidden');
+});
 
 // --- Popola Scroller ---
 playlists.forEach((_, i) => {
