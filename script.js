@@ -107,37 +107,14 @@ let widget             = null;
 
 // --- Inizializza SoundCloud Widget ---
 function initWidget() {
-    widget = SC.Widget(document.getElementById('sc-widget'));
+    const iframe = document.getElementById('sc-widget');
+    widget = SC.Widget(iframe);
 
     widget.bind(SC.Widget.Events.FINISH, function () {
         nextTrack();
     });
 }
 window.addEventListener('load', initWidget);
-
-// --- Sblocca Audio Safari al tap iniziale ---
-document.getElementById('consentBtn').addEventListener('click', function () {
-    // 1. Sblocca AudioContext (metodo più affidabile su Safari)
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (AudioContext) {
-        const ctx = new AudioContext();
-        const buf = ctx.createBuffer(1, 1, 22050);
-        const src = ctx.createBufferSource();
-        src.buffer = buf;
-        src.connect(ctx.destination);
-        src.start(0);
-        ctx.resume();
-    }
-
-    // 2. Sblocca anche l'iframe SC con postMessage diretto
-    const iframe = document.getElementById('sc-widget');
-    iframe.contentWindow.postMessage(JSON.stringify({ method: 'play' }), '*');
-    setTimeout(() => {
-        iframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
-    }, 300);
-
-    document.getElementById('consentOverlay').classList.add('hidden');
-});
 
 // --- Popola Scroller ---
 playlists.forEach((_, i) => {
@@ -166,7 +143,7 @@ function loadTrack(plIdx, sIdx) {
     });
 }
 
-function insertCD(index) {
+function insertCD_OLD(index) {
     currentPlaylistIdx = parseInt(index);
     currentSongIdx = 0;
 
@@ -222,7 +199,7 @@ function alignGlow() {
     glow.style.top  = `${rect.top  + rect.height / 2}px`;
     glow.style.left = `${rect.left + rect.width  / 2}px`;
 }
-window.onload = alignGlow;
+window.addEventListener('load', alignGlow);
 window.onresize = alignGlow;
 
 function startDrag(e) {
@@ -275,3 +252,64 @@ window.addEventListener('touchend',    endDrag);
 scroller.addEventListener('mousedown', startDrag);
 window.addEventListener('mousemove',   moveDrag);
 window.addEventListener('mouseup',     endDrag);
+// --- Popup permesso audio (Safari fix) ---
+let audioUnlocked = false;
+
+function showAudioPermissionPopup(callback) {
+    // Crea popup al volo
+    const popup = document.createElement('div');
+    popup.id = 'audioPermPopup';
+    popup.style.cssText = `
+        position:fixed;inset:0;z-index:9999;
+        display:flex;align-items:center;justify-content:center;
+        background:rgba(0,0,0,0.5);
+    `;
+    popup.innerHTML = `
+        <div style="
+            background:var(--bg-color);
+            border-radius:24px;
+            padding:32px 28px;
+            max-width:280px;
+            text-align:center;
+            box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;
+            display:flex;flex-direction:column;gap:16px;align-items:center;
+        ">
+            <div style="font-size:48px">💿</div>
+            <p style="margin:0;font-weight:700;font-size:16px;line-height:1.4">
+                Vuoi permettere al browser di riprodurre musica?
+            </p>
+            <button id="audioPermYes" style="
+                border:none;cursor:pointer;
+                background:var(--bg-color);
+                box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff;
+                border-radius:50px;padding:12px 28px;
+                font-size:15px;font-weight:700;
+            ">▶ Sì, riproduci</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+
+    document.getElementById('audioPermYes').addEventListener('click', function () {
+        audioUnlocked = true;
+        popup.remove();
+        callback();
+    });
+}
+
+function insertCD(index) {
+    currentPlaylistIdx = parseInt(index);
+    currentSongIdx = 0;
+    activeWrapper.innerHTML = `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
+
+    if (!audioUnlocked) {
+        showAudioPermissionPopup(function () {
+            loadTrack(currentPlaylistIdx, currentSongIdx);
+            isPlaying = true;
+            if (playIcon) playIcon.src = 'img/pause.png';
+        });
+    } else {
+        loadTrack(currentPlaylistIdx, currentSongIdx);
+        isPlaying = true;
+        if (playIcon) playIcon.src = 'img/pause.png';
+    }
+}
