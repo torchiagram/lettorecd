@@ -124,26 +124,90 @@ function loadTrack(plIdx, sIdx) {
     });
 }
 
-// --- Popup permesso ---
+// --- Popup permesso (FIX SAFARI iOS) ---
 function showPermissionPopup(callback) {
     const popup = document.createElement('div');
-    popup.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);`;
-    popup.innerHTML = `
-        <div style="background:var(--bg-color);border-radius:24px;padding:32px 28px;max-width:280px;text-align:center;box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;display:flex;flex-direction:column;gap:16px;align-items:center;">
-            <div style="font-size:48px">💿</div>
-            <p style="margin:0;font-weight:700;font-size:15px;line-height:1.5">Vuoi permettere al browser di riprodurre musica?</p>
-            <button id="permYesBtn" style="border:none;cursor:pointer;background:var(--bg-color);box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff;border-radius:50px;padding:12px 28px;font-size:15px;font-weight:700;">▶ Sì, riproduci</button>
-        </div>`;
-    document.body.appendChild(popup);
+    popup.id = 'permPopup';
+    popup.style.cssText = [
+        'position:fixed',
+        'inset:0',
+        'z-index:99999',
+        'display:flex',
+        'align-items:center',
+        'justify-content:center',
+        'background:rgba(0,0,0,0.7)',
+        '-webkit-tap-highlight-color:rgba(0,0,0,0)',
+        'touch-action:manipulation'
+    ].join(';');
 
-    document.getElementById('permYesBtn').addEventListener('click', function () {
-        // 1. Suona audio nativo silenzioso — Safari sblocca il contesto audio della pagina
+    const modal = document.createElement('div');
+    modal.style.cssText = [
+        'background:var(--bg-color)',
+        'border-radius:24px',
+        'padding:32px 28px',
+        'max-width:280px',
+        'text-align:center',
+        'box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff',
+        'display:flex',
+        'flex-direction:column',
+        'gap:16px',
+        'align-items:center',
+        'touch-action:manipulation'
+    ].join(';');
+
+    const icon = document.createElement('div');
+    icon.style.fontSize = '48px';
+    icon.textContent = '💿';
+
+    const text = document.createElement('p');
+    text.style.cssText = 'margin:0;font-weight:700;font-size:15px;line-height:1.5';
+    text.textContent = 'Vuoi permettere al browser di riprodurre musica?';
+
+    const btn = document.createElement('button');
+    btn.style.cssText = [
+        'border:none',
+        'cursor:pointer',
+        'background:var(--bg-color)',
+        'box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff',
+        'border-radius:50px',
+        'padding:12px 28px',
+        'font-size:15px',
+        'font-weight:700',
+        'touch-action:manipulation',
+        '-webkit-tap-highlight-color:rgba(0,0,0,0)',
+        'min-width:160px',
+        'min-height:50px'
+    ].join(';');
+    btn.textContent = '▶ Sì, riproduci';
+
+    // FIX CRITICO: usa touchend per Safari iOS invece di click
+    // + stopPropagation per evitare interferenze con i listener globali del drag
+    let unlockFired = false;
+    function handleUnlock(e) {
+        if (unlockFired) return;
+        unlockFired = true;
+        e.preventDefault();
+        e.stopPropagation();
+        // Sblocca il contesto audio nativo di Safari
         silentAudio.play().catch(() => {});
         audioUnlocked = true;
         popup.remove();
-        // 2. Ora carica e riproduci la traccia SC
         callback();
-    });
+    }
+
+    btn.addEventListener('touchend', handleUnlock, { passive: false });
+    btn.addEventListener('click', handleUnlock); // fallback desktop
+
+    // Blocca TUTTI i touch events del popup dal raggiungere i listener globali del drag
+    popup.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: false });
+    popup.addEventListener('touchmove',  function(e) { e.stopPropagation(); }, { passive: false });
+    popup.addEventListener('touchend',   function(e) { e.stopPropagation(); }, { passive: false });
+
+    modal.appendChild(icon);
+    modal.appendChild(text);
+    modal.appendChild(btn);
+    popup.appendChild(modal);
+    document.body.appendChild(popup);
 }
 
 // --- Inserisci CD ---
@@ -212,7 +276,8 @@ function alignGlow() {
 window.onresize = alignGlow;
 
 function startDrag(e) {
-    if (document.getElementById('permYesBtn')) return; // popup aperto, non draggare
+    // FIX: controlla il nuovo id del popup
+    if (document.getElementById('permPopup')) return;
     const target = e.target.closest('.cd-img');
     if (!target) return;
     isDragging = true;
