@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Tap iniziale per sbloccare audio su Safari -->
+    <div class="consent-overlay" id="consentOverlay">
+        <div class="consent-modal">
+            <div class="consent-cd-icon">💿</div>
+            <h2 class="consent-title">Discman</h2>
+            <button class="consent-btn" id="consentBtn">Tocca per iniziare</button>
+        </div>
+    </div>
+
     <div class="dark-overlay" id="darkOverlay"></div>
     
     <div class="glow-effect" id="glowEffect">
@@ -46,16 +55,10 @@
         </footer>
     </div>
 
-    <!--
-        FIX iOS Safari: display:none impedisce a Safari di inizializzare
-        il widget SoundCloud. Usiamo visibility:hidden + posizione fuori schermo
-        così il widget esiste nel DOM ed è pronto a ricevere comandi.
-    -->
+    <!-- SoundCloud Widget nascosto (sostituisce <audio>) -->
     <iframe id="sc-widget"
         src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false"
-        width="1" height="1"
-        style="position:fixed; top:-10px; left:-10px; visibility:hidden;"
-        allow="autoplay">
+        width="0" height="0" style="display:none" allow="autoplay">
     </iframe>
 
     <script src="https://w.soundcloud.com/player/api.js"></script>
