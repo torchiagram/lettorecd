@@ -1,82 +1,83 @@
 const playlists = [
     {
         songs: [
-            { title: 'Dammit - Blink 182',              url: 'https://soundcloud.com/blink-182/dammit-album-version' },
-            { title: 'Adams Song - Blink 182',           url: 'https://soundcloud.com/blink-182/adams-song-album-version' },
-            { title: 'All the Small Things - Blink 182', url: 'https://soundcloud.com/scorpionium/all-the-small-things' },
-            { title: 'In Too Deep - Sum 41',             url: 'https://soundcloud.com/steadyeddyyy/sum41-in-too-deep' },
-            { title: 'Still Waiting - Sum 41',           url: 'https://soundcloud.com/jake-baxendale/sum-41-still-waiting-cover' },
-            { title: 'The Offspring - Self Esteem',      url: 'https://soundcloud.com/offspring/self-esteem-1' },
-            { title: 'The Offspring - The Kids Aren t Alright', url: 'https://soundcloud.com/originofalan/the-offspring-the-kids-arent-alright' },
-            { title: 'The Offspring - Pretty Fly for a white guy', url: 'https://soundcloud.com/luis-linares-1/pretty-fly-for-a-white-guy-the' },
-            { title: 'Green Day - Basket Case', url: 'https://soundcloud.com/greenday/basket-case' },
-            { title: 'Avril Lavigne - Complicated', url: 'https://soundcloud.com/ionut-morosanu-1/avril-lavigne-complicated-1' },
-            { title: 'Fall Out Boy - Sugar We re Goin Down', url: 'https://soundcloud.com/falloutboy/04-sugar-were-goin-down' },
-            { title: 'My Friends Over You - New Found Glory', url: 'https://soundcloud.com/fmspompon/my-friends-over-you' },
-            { title: 'Simple Plan - I m Just A Kid', url: 'https://soundcloud.com/user-132170116/simple-plan-im-just-a-kid' },
+            { title: 'Dammit - Blink 182',                       url: 'https://soundcloud.com/blink-182/dammit-album-version' },
+            { title: 'Adams Song - Blink 182',                    url: 'https://soundcloud.com/blink-182/adams-song-album-version' },
+            { title: 'All the Small Things - Blink 182',          url: 'https://soundcloud.com/scorpionium/all-the-small-things' },
+            { title: 'In Too Deep - Sum 41',                      url: 'https://soundcloud.com/steadyeddyyy/sum41-in-too-deep' },
+            { title: 'Still Waiting - Sum 41',                    url: 'https://soundcloud.com/jake-baxendale/sum-41-still-waiting-cover' },
+            { title: 'The Offspring - Self Esteem',               url: 'https://soundcloud.com/offspring/self-esteem-1' },
+            { title: 'The Offspring - The Kids Aren t Alright',   url: 'https://soundcloud.com/originofalan/the-offspring-the-kids-arent-alright' },
+            { title: 'The Offspring - Pretty Fly for a white guy',url: 'https://soundcloud.com/luis-linares-1/pretty-fly-for-a-white-guy-the' },
+            { title: 'Green Day - Basket Case',                   url: 'https://soundcloud.com/greenday/basket-case' },
+            { title: 'Avril Lavigne - Complicated',               url: 'https://soundcloud.com/ionut-morosanu-1/avril-lavigne-complicated-1' },
+            { title: 'Fall Out Boy - Sugar We re Goin Down',      url: 'https://soundcloud.com/falloutboy/04-sugar-were-goin-down' },
+            { title: 'My Friends Over You - New Found Glory',     url: 'https://soundcloud.com/fmspompon/my-friends-over-you' },
+            { title: 'Simple Plan - I m Just A Kid',              url: 'https://soundcloud.com/user-132170116/simple-plan-im-just-a-kid' },
         ]
     },
     {
         songs: [
-            { title: 'Linkin Park - Numb', url: 'https://soundcloud.com/linkinpark/numb' },
-            { title: 'Alter Bridge - Metalingus', url: 'https://soundcloud.com/alterbridgeofficial/metalingus' },
-            { title: 'Linkin Park - In the End', url: 'https://soundcloud.com/linkinpark/in-the-end' },
-            { title: 'Red Hot Chili Peppers - By the Way', url: 'https://soundcloud.com/red-hot-chili-peppers-official/by-the-way-1' },
-            { title: 'Evanescence - Bring Me To Life', url: 'https://soundcloud.com/raife-duarte/evanescence-bring-me-to-life' },
-            { title: 'Red Hot Chili Peppers - Californication', url: 'https://soundcloud.com/red-hot-chili-peppers-official/californication' },
-            { title: 'System of a down - Chop Suey', url: 'https://soundcloud.com/alen-zerek/system-of-a-down-chop-suey' },
-            { title: 'The White Stripes - Seven Nation Army', url: 'https://soundcloud.com/mike-hunt-2/seven-nation-army' },
-            { title: 'Jet - Are you Gonna Be My Girl', url: 'https://soundcloud.com/adamashvili-gigi1/jet-are-you-gonna-be-my-girl' },
-            { title: 'Franz Ferdinand - Take Me Out', url: 'https://soundcloud.com/franzferdinand/take-me-out-1' },
-            { title: 'Red Hot Chili Peppers - Can t Stop', url: 'https://soundcloud.com/red-hot-chili-peppers-official/cant-stop' },
-            { title: 'Audioslave - Like a stone', url: 'https://soundcloud.com/bezz_records/audioslave-like-a-stone' },
-            { title: 'Headstrong - Trapt', url: 'https://soundcloud.com/traptmusic/trapt-headstrong?in=user-345356873/sets/the-offsprings' },
-            { title: 'Drowning Pool - Bodies', url: 'https://soundcloud.com/drowning-pool/bodies' },
-            { title: 'Slipknot - Duality', url: 'https://soundcloud.com/slipknot/duality' },
-            { title: 'Nickelback - How You Remind Me', url: 'https://soundcloud.com/nickelback/how-you-remind-me' },
-            { title: 'Lifehouse - You And Me', url: 'https://soundcloud.com/lifehouse-official/you-and-me-album-version' },
-            { title: 'Hoobastank - The Reason', url: 'https://soundcloud.com/kevin-brian-2/the-reason-hoobastank?in=rian-sofyan/sets/pop-2000-an-west-song' },
-            { title: 'Coldplay - Yellow', url: 'https://soundcloud.com/archelle-425093208/coldplay-yellow?in=rian-sofyan/sets/pop-2000-an-west-song' },
-            { title: '3 doors down - here without you', url: 'https://soundcloud.com/ismahalil/3-doors-down-here-without-you-3?in=rian-sofyan/sets/pop-2000-an-west-song' },
+            { title: 'Linkin Park - Numb',                        url: 'https://soundcloud.com/linkinpark/numb' },
+            { title: 'Alter Bridge - Metalingus',                  url: 'https://soundcloud.com/alterbridgeofficial/metalingus' },
+            { title: 'Linkin Park - In the End',                   url: 'https://soundcloud.com/linkinpark/in-the-end' },
+            { title: 'Red Hot Chili Peppers - By the Way',         url: 'https://soundcloud.com/red-hot-chili-peppers-official/by-the-way-1' },
+            { title: 'Evanescence - Bring Me To Life',             url: 'https://soundcloud.com/raife-duarte/evanescence-bring-me-to-life' },
+            { title: 'Red Hot Chili Peppers - Californication',    url: 'https://soundcloud.com/red-hot-chili-peppers-official/californication' },
+            { title: 'System of a down - Chop Suey',              url: 'https://soundcloud.com/alen-zerek/system-of-a-down-chop-suey' },
+            { title: 'The White Stripes - Seven Nation Army',      url: 'https://soundcloud.com/mike-hunt-2/seven-nation-army' },
+            { title: 'Jet - Are you Gonna Be My Girl',             url: 'https://soundcloud.com/adamashvili-gigi1/jet-are-you-gonna-be-my-girl' },
+            { title: 'Franz Ferdinand - Take Me Out',              url: 'https://soundcloud.com/franzferdinand/take-me-out-1' },
+            { title: 'Red Hot Chili Peppers - Can t Stop',         url: 'https://soundcloud.com/red-hot-chili-peppers-official/cant-stop' },
+            { title: 'Audioslave - Like a stone',                  url: 'https://soundcloud.com/bezz_records/audioslave-like-a-stone' },
+            { title: 'Headstrong - Trapt',                         url: 'https://soundcloud.com/traptmusic/trapt-headstrong?in=user-345356873/sets/the-offsprings' },
+            { title: 'Drowning Pool - Bodies',                     url: 'https://soundcloud.com/drowning-pool/bodies' },
+            { title: 'Slipknot - Duality',                         url: 'https://soundcloud.com/slipknot/duality' },
+            { title: 'Nickelback - How You Remind Me',             url: 'https://soundcloud.com/nickelback/how-you-remind-me' },
+            { title: 'Lifehouse - You And Me',                     url: 'https://soundcloud.com/lifehouse-official/you-and-me-album-version' },
+            { title: 'Hoobastank - The Reason',                    url: 'https://soundcloud.com/kevin-brian-2/the-reason-hoobastank?in=rian-sofyan/sets/pop-2000-an-west-song' },
+            { title: 'Coldplay - Yellow',                          url: 'https://soundcloud.com/archelle-425093208/coldplay-yellow?in=rian-sofyan/sets/pop-2000-an-west-song' },
+            { title: '3 doors down - here without you',            url: 'https://soundcloud.com/ismahalil/3-doors-down-here-without-you-3?in=rian-sofyan/sets/pop-2000-an-west-song' },
         ]
     },
     {
         songs: [
-            { title: 'Britney Spears - Baby One More Time', url: 'https://soundcloud.com/julia-chang-594508242/britney-spears-baby-one-more' },
-            { title: 'Backstreet Boys - I Want It That Way', url: 'https://soundcloud.com/jacky-disha-175684960/backstreet-boys-greatest-hits' },
-            { title: 'NSync - Bye Bye Bye', url: 'https://soundcloud.com/the-cheerleader/nsync-bye-bye-bye' },
-            { title: 'Gwen Stefani - hollaback girl', url: 'https://soundcloud.com/dlfakszkzk/himwadda-hollaback-girl-copy' },
-            { title: 'Alizee - Moi Lolita', url: 'https://soundcloud.com/snow-powder/alizee-moi-lolita' },
-            { title: 'Nelly Furtado - Promiscuous', url: 'https://soundcloud.com/nellyfurtado/promiscuous-album-version' },
-            { title: 'Outkast - Ms. Jackson', url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
-            { title: 'Justin Timberlake - Cry Me A River', url: 'https://soundcloud.com/rugiolivier/justin-timberlake-cry-me-a-river-ro-remix' },
+            { title: 'Britney Spears - Baby One More Time',        url: 'https://soundcloud.com/julia-chang-594508242/britney-spears-baby-one-more' },
+            { title: 'Backstreet Boys - I Want It That Way',       url: 'https://soundcloud.com/jacky-disha-175684960/backstreet-boys-greatest-hits' },
+            { title: 'NSync - Bye Bye Bye',                        url: 'https://soundcloud.com/the-cheerleader/nsync-bye-bye-bye' },
+            { title: 'Gwen Stefani - hollaback girl',              url: 'https://soundcloud.com/dlfakszkzk/himwadda-hollaback-girl-copy' },
+            { title: 'Alizee - Moi Lolita',                        url: 'https://soundcloud.com/snow-powder/alizee-moi-lolita' },
+            { title: 'Nelly Furtado - Promiscuous',                url: 'https://soundcloud.com/nellyfurtado/promiscuous-album-version' },
+            { title: 'Outkast - Ms. Jackson',                      url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
+            { title: 'Justin Timberlake - Cry Me A River',         url: 'https://soundcloud.com/rugiolivier/justin-timberlake-cry-me-a-river-ro-remix' },
         ]
     },
     {
         songs: [
-            { title: '50Cent - P.I.M.P.', url: 'https://soundcloud.com/dc_mt_louko/50cent-pimp?in=noa-kelly/sets/2000s-throw-backs' },
-            { title: 'Black Eyes Peas - My Humps', url: 'https://soundcloud.com/bajatumusica/black-eyes-peas-my-humps?in=noa-kelly/sets/2000s-throw-backs' },
-            { title: 'Usher - Yeah', url: 'https://soundcloud.com/trey_plays-yt/usher-yeah-original' },
-            { title: 'Nelly - Hot In Herre', url: 'https://soundcloud.com/nelly-official/hot-in-herre' },
-            { title: 'Eminem - Without Me', url: 'https://soundcloud.com/eminemofficial/without-me-album-version' },
-            { title: 'Black Eyes Peas - Where Is The Love?', url: 'https://soundcloud.com/black-eyed-peas-official/where-is-the-love-album' },
-            { title: 'Black Eyes Peas - Don t Phunk With My Heart', url: 'https://soundcloud.com/black-eyed-peas-official/dont-phunk-with-my-heart-1' },
-            { title: 'Destiny s Child - Say My Name', url: 'https://soundcloud.com/sowce/destinys-child-say-my-name' },
-            { title: 'Eamon - I Dont Want You Back', url: 'https://soundcloud.com/mix-93-3-all-the-mix/eamon-i-dont-want-you-back' },
-            { title: 'Panjabi MC - Mundian To Bach Ke', url: 'https://soundcloud.com/panjabi-mc-official/mundian-to-bach-ke-2' },
-            { title: 'Pony - Ginuwine', url: 'https://soundcloud.com/user-190562091-180395941/12-ginuwine-pony' },
-            { title: 'Mario - Let Me Love You', url: 'https://soundcloud.com/marioofficial/let-me-love-you-anniversary' },
-            { title: 'Mary J Blige - Family Affair', url: 'https://soundcloud.com/bakuridzedima/mary-j-blige-family-affair-remix' },
-            { title: 'M.I.A - Paper Planes', url: 'https://soundcloud.com/max-420/sets/mia-paper-plane' },
-            { title: 'Beyonce - Crazy In Love ft. JAY-Z', url: 'https://soundcloud.com/e1oovdghddfw/crazy-in-love-ft-jay' },
-            { title: '50Cent - In Da Club', url: 'https://soundcloud.com/leo-ali-306816420/50cent-in-da-club-hd' },
-            { title: 'Nelly - Dilemma feat. Kelly Rowland', url: 'https://soundcloud.com/nelly-official/dilemma' },
-            { title: 'Sean Paul - Get Busy', url: 'https://soundcloud.com/seanpaul2/get-busy' },
-            { title: 'Eminem - Lose Yourself', url: 'https://soundcloud.com/eminemofficial/lose-yourself' },
+            { title: '50Cent - P.I.M.P.',                          url: 'https://soundcloud.com/dc_mt_louko/50cent-pimp?in=noa-kelly/sets/2000s-throw-backs' },
+            { title: 'Black Eyes Peas - My Humps',                 url: 'https://soundcloud.com/bajatumusica/black-eyes-peas-my-humps?in=noa-kelly/sets/2000s-throw-backs' },
+            { title: 'Usher - Yeah',                               url: 'https://soundcloud.com/trey_plays-yt/usher-yeah-original' },
+            { title: 'Nelly - Hot In Herre',                       url: 'https://soundcloud.com/nelly-official/hot-in-herre' },
+            { title: 'Eminem - Without Me',                        url: 'https://soundcloud.com/eminemofficial/without-me-album-version' },
+            { title: 'Black Eyes Peas - Where Is The Love?',       url: 'https://soundcloud.com/black-eyed-peas-official/where-is-the-love-album' },
+            { title: 'Black Eyes Peas - Don t Phunk With My Heart',url: 'https://soundcloud.com/black-eyed-peas-official/dont-phunk-with-my-heart-1' },
+            { title: 'Destiny s Child - Say My Name',              url: 'https://soundcloud.com/sowce/destinys-child-say-my-name' },
+            { title: 'Eamon - I Dont Want You Back',               url: 'https://soundcloud.com/mix-93-3-all-the-mix/eamon-i-dont-want-you-back' },
+            { title: 'Panjabi MC - Mundian To Bach Ke',            url: 'https://soundcloud.com/panjabi-mc-official/mundian-to-bach-ke-2' },
+            { title: 'Pony - Ginuwine',                            url: 'https://soundcloud.com/user-190562091-180395941/12-ginuwine-pony' },
+            { title: 'Mario - Let Me Love You',                    url: 'https://soundcloud.com/marioofficial/let-me-love-you-anniversary' },
+            { title: 'Mary J Blige - Family Affair',               url: 'https://soundcloud.com/bakuridzedima/mary-j-blige-family-affair-remix' },
+            { title: 'M.I.A - Paper Planes',                       url: 'https://soundcloud.com/max-420/sets/mia-paper-plane' },
+            { title: 'Beyonce - Crazy In Love ft. JAY-Z',          url: 'https://soundcloud.com/e1oovdghddfw/crazy-in-love-ft-jay' },
+            { title: '50Cent - In Da Club',                        url: 'https://soundcloud.com/leo-ali-306816420/50cent-in-da-club-hd' },
+            { title: 'Nelly - Dilemma feat. Kelly Rowland',        url: 'https://soundcloud.com/nelly-official/dilemma' },
+            { title: 'Sean Paul - Get Busy',                       url: 'https://soundcloud.com/seanpaul2/get-busy' },
+            { title: 'Eminem - Lose Yourself',                     url: 'https://soundcloud.com/eminemofficial/lose-yourself' },
         ]
     }
 ];
 
+// --- Elementi DOM ---
 const scroller      = document.getElementById('cdScroller');
 const dropZone      = document.getElementById('dropZone');
 const glow          = document.getElementById('glowEffect');
@@ -87,6 +88,10 @@ const playIcon      = document.getElementById('playIcon');
 const trackTitle    = document.getElementById('trackTitle');
 const silentAudio   = document.getElementById('silentAudio');
 
+// POPUP: elementi già nel DOM dall'HTML - non creati da JS
+const permPopup     = document.getElementById('permPopup');
+const permBtn       = document.getElementById('permBtn');
+
 let dragClone          = null;
 let currentPlaylistIdx = -1;
 let currentSongIdx     = 0;
@@ -94,6 +99,8 @@ let isDragging         = false;
 let isPlaying          = false;
 let widget             = null;
 let audioUnlocked      = false;
+let popupOpen          = false;
+let pendingCallback    = null; // callback da eseguire dopo unlock
 
 // --- Inizializza Widget ---
 function initWidget() {
@@ -102,6 +109,37 @@ function initWidget() {
 }
 window.addEventListener('load', initWidget);
 window.addEventListener('load', alignGlow);
+
+// --- GESTIONE POPUP (elemento statico) ---
+// Il pulsante è già nel DOM: iOS lo tratta come elemento nativo, nessun problema
+permBtn.addEventListener('click', doUnlock);
+permBtn.addEventListener('touchend', function(e) {
+    e.preventDefault(); // previene il doppio fire click+touchend
+    doUnlock();
+});
+
+function doUnlock() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    silentAudio.play().catch(() => {});
+    hidePopup();
+    if (pendingCallback) {
+        var cb = pendingCallback;
+        pendingCallback = null;
+        cb();
+    }
+}
+
+function showPopup(callback) {
+    pendingCallback = callback;
+    popupOpen = true;
+    permPopup.style.display = 'flex';
+}
+
+function hidePopup() {
+    popupOpen = false;
+    permPopup.style.display = 'none';
+}
 
 // --- Popola Scroller ---
 playlists.forEach((_, i) => {
@@ -124,108 +162,22 @@ function loadTrack(plIdx, sIdx) {
     });
 }
 
-// --- Popup permesso (FIX SAFARI iOS) ---
-function showPermissionPopup(callback) {
-    const popup = document.createElement('div');
-    popup.id = 'permPopup';
-    popup.style.cssText = [
-        'position:fixed',
-        'inset:0',
-        'z-index:99999',
-        'display:flex',
-        'align-items:center',
-        'justify-content:center',
-        'background:rgba(0,0,0,0.7)',
-        '-webkit-tap-highlight-color:rgba(0,0,0,0)',
-        'touch-action:manipulation'
-    ].join(';');
-
-    const modal = document.createElement('div');
-    modal.style.cssText = [
-        'background:var(--bg-color)',
-        'border-radius:24px',
-        'padding:32px 28px',
-        'max-width:280px',
-        'text-align:center',
-        'box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff',
-        'display:flex',
-        'flex-direction:column',
-        'gap:16px',
-        'align-items:center',
-        'touch-action:manipulation'
-    ].join(';');
-
-    const icon = document.createElement('div');
-    icon.style.fontSize = '48px';
-    icon.textContent = '💿';
-
-    const text = document.createElement('p');
-    text.style.cssText = 'margin:0;font-weight:700;font-size:15px;line-height:1.5';
-    text.textContent = 'Vuoi permettere al browser di riprodurre musica?';
-
-    const btn = document.createElement('button');
-    btn.style.cssText = [
-        'border:none',
-        'cursor:pointer',
-        'background:var(--bg-color)',
-        'box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff',
-        'border-radius:50px',
-        'padding:12px 28px',
-        'font-size:15px',
-        'font-weight:700',
-        'touch-action:manipulation',
-        '-webkit-tap-highlight-color:rgba(0,0,0,0)',
-        'min-width:160px',
-        'min-height:50px'
-    ].join(';');
-    btn.textContent = '▶ Sì, riproduci';
-
-    // FIX CRITICO: usa touchend per Safari iOS invece di click
-    // + stopPropagation per evitare interferenze con i listener globali del drag
-    let unlockFired = false;
-    function handleUnlock(e) {
-        if (unlockFired) return;
-        unlockFired = true;
-        e.preventDefault();
-        e.stopPropagation();
-        // Sblocca il contesto audio nativo di Safari
-        silentAudio.play().catch(() => {});
-        audioUnlocked = true;
-        popup.remove();
-        callback();
-    }
-
-    btn.addEventListener('touchend', handleUnlock, { passive: false });
-    btn.addEventListener('click', handleUnlock); // fallback desktop
-
-    // Blocca TUTTI i touch events del popup dal raggiungere i listener globali del drag
-    popup.addEventListener('touchstart', function(e) { e.stopPropagation(); }, { passive: false });
-    popup.addEventListener('touchmove',  function(e) { e.stopPropagation(); }, { passive: false });
-    popup.addEventListener('touchend',   function(e) { e.stopPropagation(); }, { passive: false });
-
-    modal.appendChild(icon);
-    modal.appendChild(text);
-    modal.appendChild(btn);
-    popup.appendChild(modal);
-    document.body.appendChild(popup);
-}
-
 // --- Inserisci CD ---
 function insertCD(index) {
     currentPlaylistIdx = parseInt(index);
-    currentSongIdx = 0;
+    currentSongIdx     = 0;
     activeWrapper.innerHTML = `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
 
-    if (!audioUnlocked) {
-        showPermissionPopup(function () {
-            loadTrack(currentPlaylistIdx, currentSongIdx);
-            isPlaying = true;
-            if (playIcon) playIcon.src = 'img/pause.png';
-        });
-    } else {
+    const play = function() {
         loadTrack(currentPlaylistIdx, currentSongIdx);
         isPlaying = true;
         if (playIcon) playIcon.src = 'img/pause.png';
+    };
+
+    if (!audioUnlocked) {
+        showPopup(play);
+    } else {
+        play();
     }
 }
 
@@ -276,14 +228,13 @@ function alignGlow() {
 window.onresize = alignGlow;
 
 function startDrag(e) {
-    // FIX: controlla il nuovo id del popup
-    if (document.getElementById('permPopup')) return;
+    if (popupOpen) return;
     const target = e.target.closest('.cd-img');
     if (!target) return;
     isDragging = true;
-    let idx = target.dataset.index;
-    dragClone = target.cloneNode(true);
-    dragClone.id = "draggingCD";
+    const idx  = target.dataset.index;
+    dragClone  = target.cloneNode(true);
+    dragClone.id = 'draggingCD';
     document.body.appendChild(dragClone);
     target.classList.add('hidden');
     overlay.classList.add('active');
@@ -301,10 +252,11 @@ function moveDrag(e) {
 }
 
 function endDrag(e) {
+    if (popupOpen) return;
     if (!isDragging || !dragClone) return;
     const x = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
     const y = e.type.includes('touch') ? e.changedTouches[0].clientY : e.clientY;
-    const rect = dropZone.getBoundingClientRect();
+    const rect         = dropZone.getBoundingClientRect();
     const droppedIndex = dragClone.dataset.tempIndex;
     document.querySelectorAll('.cd-img').forEach(img => img.classList.remove('hidden'));
     if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
@@ -315,12 +267,13 @@ function endDrag(e) {
 
 function cleanup() {
     if (dragClone) dragClone.remove();
-    dragClone = null;
+    dragClone  = null;
     isDragging = false;
     overlay.classList.remove('active');
     glow.classList.remove('active');
 }
 
+// --- Listener globali drag ---
 scroller.addEventListener('touchstart', startDrag, { passive: false });
 window.addEventListener('touchmove',   moveDrag,  { passive: false });
 window.addEventListener('touchend',    endDrag);
