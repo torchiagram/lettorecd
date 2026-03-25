@@ -26,7 +26,9 @@ body {
     display: flex; 
     flex-direction: column; 
     position: relative; 
-    z-index: 5; 
+    z-index: 5;
+    /* Evita che il contenuto finisca sotto la status bar su iOS fullscreen */
+    padding-top: env(safe-area-inset-top);
 }
 
 .main-title { 
@@ -244,6 +246,7 @@ body {
     pointer-events: none; 
     filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3)); 
 }
+
 /* ===== CONSENT OVERLAY ===== */
 .consent-overlay {
     position: fixed;
