@@ -77,8 +77,6 @@ const playlists = [
     }
 ];
 
-const playlists = [/* <-- LASCIA IL TUO ARRAY IDENTICO */];
-
 document.addEventListener('DOMContentLoaded', function () {
 
     const scroller      = document.getElementById('cdScroller');
@@ -100,64 +98,79 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isPlaying = false;
     let isDragging = false;
-
     let dragClone = null;
 
     let audioUnlocked = false;
+    let pendingCallback = null;
 
     // =========================
     // 🔥 INIT SOUND CLOUD
     // =========================
     window.addEventListener('load', function () {
         widget = SC.Widget(document.getElementById('sc-widget'));
-
         widget.bind(SC.Widget.Events.FINISH, nextTrack);
     });
 
     // =========================
-    // 🔥 SBLOCCO AUDIO iOS (PRO)
+    // 🔥 POPUP CONTROL
     // =========================
-    function unlockAudioIOS(callback) {
-        if (audioUnlocked) {
-            callback && callback();
-            return;
-        }
-
+    function showPopup(callback) {
+        pendingCallback = callback;
         permPopup.style.display = 'flex';
+    }
 
-        const unlock = () => {
-            audioUnlocked = true;
-
-            // 🔑 1. Sblocca contesto audio
-            silentAudio.play().catch(()=>{});
-
-            // 🔑 2. Sblocca SoundCloud (CRUCIALE)
-            widget.load(playlists[0].songs[0].url);
-
-            widget.play();
-            widget.pause();
-
-            permPopup.style.display = 'none';
-
-            callback && callback();
-        };
-
-        permBtn.onclick = unlock;
-        permBtn.ontouchend = (e) => {
-            e.preventDefault();
-            unlock();
-        };
+    function hidePopup() {
+        permPopup.style.display = 'none';
     }
 
     // =========================
-    // 🎵 LOAD TRACK (PULITO)
+    // 🔥 iOS AUDIO UNLOCK (CORE)
+    // =========================
+    function doUnlock() {
+        if (audioUnlocked) return;
+
+        audioUnlocked = true;
+
+        // 1. Sblocca audio context
+        silentAudio.play().catch(() => {});
+
+        // 2. Sblocca SoundCloud (CRUCIALE)
+        if (widget) {
+            widget.load(playlists[0].songs[0].url);
+            widget.play();
+            widget.pause();
+        }
+
+        hidePopup();
+
+        // 3. Esegui azione utente (ORA è dentro gesture)
+        if (pendingCallback) {
+            const cb = pendingCallback;
+            pendingCallback = null;
+            cb();
+        }
+    }
+
+    permBtn.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        doUnlock();
+    });
+
+    permBtn.addEventListener('click', doUnlock);
+
+    // =========================
+    // 🎵 LOAD TRACK
     // =========================
     function loadTrack(plIdx, sIdx) {
         const song = playlists[plIdx].songs[sIdx];
 
         trackTitle.innerText = song.title;
 
-        widget.load(song.url);
+        if (!widget) return;
+
+        widget.load(song.url, {
+            auto_play: false
+        });
 
         if (isPlaying) {
             widget.play();
@@ -168,19 +181,27 @@ document.addEventListener('DOMContentLoaded', function () {
     // 💿 INSERT CD
     // =========================
     function insertCD(index) {
-        unlockAudioIOS(() => {
+        currentPlaylistIdx = parseInt(index);
+        currentSongIdx = 0;
 
-            currentPlaylistIdx = parseInt(index);
-            currentSongIdx = 0;
+        activeWrapper.innerHTML =
+            `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
 
-            activeWrapper.innerHTML =
-                `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
-
+        const play = () => {
             isPlaying = true;
             playIcon.src = 'img/pause.png';
 
+            const cd = document.getElementById('spinningCd');
+            cd && cd.classList.remove('paused');
+
             loadTrack(currentPlaylistIdx, currentSongIdx);
-        });
+        };
+
+        if (!audioUnlocked) {
+            showPopup(play);
+        } else {
+            play();
+        }
     }
 
     // =========================
@@ -190,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!widget || currentPlaylistIdx === -1) return;
 
         if (!audioUnlocked) {
-            unlockAudioIOS(() => playBtn.click());
+            showPopup(() => playBtn.click());
             return;
         }
 
@@ -238,11 +259,11 @@ document.addEventListener('DOMContentLoaded', function () {
         loadTrack(currentPlaylistIdx, currentSongIdx);
     }
 
-    document.getElementById('nextBtn').addEventListener('click', prevTrack);
-    document.getElementById('prevBtn').addEventListener('click', nextTrack);
+    document.getElementById('nextBtn').addEventListener('click', nextTrack);
+    document.getElementById('prevBtn').addEventListener('click', prevTrack);
 
     // =========================
-    // 🎯 DRAG & DROP (UGUALE)
+    // 🎯 DRAG & DROP
     // =========================
     function startDrag(e) {
         const target = e.target.closest('.cd-img');
@@ -284,7 +305,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
 
         const rect = dropZone.getBoundingClientRect();
-
         const index = dragClone.dataset.index;
 
         document.querySelectorAll('.cd-img')
