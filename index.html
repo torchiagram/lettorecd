@@ -46,10 +46,16 @@
         </footer>
     </div>
 
-    <!-- SoundCloud Widget nascosto (sostituisce <audio>) -->
+    <!--
+        FIX iOS Safari: display:none impedisce a Safari di inizializzare
+        il widget SoundCloud. Usiamo visibility:hidden + posizione fuori schermo
+        così il widget esiste nel DOM ed è pronto a ricevere comandi.
+    -->
     <iframe id="sc-widget"
         src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false"
-        width="0" height="0" style="display:none" allow="autoplay">
+        width="1" height="1"
+        style="position:fixed; top:-10px; left:-10px; visibility:hidden;"
+        allow="autoplay">
     </iframe>
 
     <script src="https://w.soundcloud.com/player/api.js"></script>
