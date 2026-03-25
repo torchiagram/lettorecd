@@ -57,7 +57,7 @@ const playlists = [
             { title: 'Gwen Stefani - hollaback girl', url: 'https://soundcloud.com/dlfakszkzk/himwadda-hollaback-girl-copy' },
              { title: 'Alizée - Moi... Lolita', url: 'https://soundcloud.com/snow-powder/alizee-moi-lolita' },
               { title: 'Nelly Furtado - Promiscuous ', url: 'https://soundcloud.com/nellyfurtado/promiscuous-album-version' },
-             { title: 'Outkast - I'm sorry Ms. Jackson  ', url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
+             { title: "Outkast - I'm sorry Ms. Jackson", url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
              { title: 'Justin Timberlake  - Cry Me A River', url: 'https://soundcloud.com/rugiolivier/justin-timberlake-cry-me-a-river-ro-remix' },
         ]
     },
