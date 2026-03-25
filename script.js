@@ -57,7 +57,7 @@ const playlists = [
             { title: 'Gwen Stefani - hollaback girl', url: 'https://soundcloud.com/dlfakszkzk/himwadda-hollaback-girl-copy' },
              { title: 'Alizée - Moi... Lolita', url: 'https://soundcloud.com/snow-powder/alizee-moi-lolita' },
               { title: 'Nelly Furtado - Promiscuous ', url: 'https://soundcloud.com/nellyfurtado/promiscuous-album-version' },
-             { title: 'Outkast - I’m sorry Ms. Jackson  ', url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
+             { title: 'Outkast - I'm sorry Ms. Jackson  ', url: 'https://soundcloud.com/jyalnas/im-sorry-ms-jackson-outkast?in=noa-kelly/sets/2000s-throw-backs' },
              { title: 'Justin Timberlake  - Cry Me A River', url: 'https://soundcloud.com/rugiolivier/justin-timberlake-cry-me-a-river-ro-remix' },
         ]
     },
@@ -82,9 +82,6 @@ const playlists = [
              { title: 'Nelly  - Dilemma feat. Kelly Rowland', url: 'https://soundcloud.com/nelly-official/dilemma' },
               { title: 'Sean Paul   - Get Busy', url: 'https://soundcloud.com/seanpaul2/get-busy' },
               { title: 'Eminem   - Lose Yourself', url: 'https://soundcloud.com/eminemofficial/lose-yourself' },
-            
-            
-              
         ]
     }
 ];
@@ -104,6 +101,7 @@ let currentSongIdx     = 0;
 let isDragging         = false;
 let isPlaying          = false;
 let widget             = null;
+let audioUnlocked      = false; // ← traccia se Safari è già stato "sbloccato"
 
 // --- Inizializza SoundCloud Widget ---
 function initWidget() {
@@ -124,23 +122,55 @@ playlists.forEach((_, i) => {
     scroller.appendChild(div);
 });
 
+// ─────────────────────────────────────────────────────────────────
+// UNLOCK AUDIO iOS Safari
+// Safari richiede che play() venga chiamato DENTRO un evento utente
+// diretto (touchstart/mousedown). Il touchend di un drag NON vale.
+// Soluzione: al touchstart del disco facciamo play()+pause() subito,
+// così "sblocchiamo" il contesto audio prima ancora che inizi il drag.
+// ─────────────────────────────────────────────────────────────────
+function unlockAudioContext() {
+    if (audioUnlocked || !widget) return;
+    // play() immediato dentro il touchstart = gesto valido per Safari
+    widget.play();
+    // pause quasi immediata: l'utente non sente nulla ma il blocco è tolto
+    setTimeout(() => {
+        widget.pause();
+        audioUnlocked = true;
+    }, 80);
+}
+
 // --- Carica traccia nel widget ---
 function loadTrack(plIdx, sIdx) {
     const song = playlists[plIdx].songs[sIdx];
     trackTitle.innerText = song.title;
-
     if (!widget) return;
-    widget.load(song.url, {
-        auto_play: true,
-        show_artwork: false,
-        buying: false,
-        liking: false,
-        download: false,
-        sharing: false,
-        show_comments: false,
-        show_user: false,
-        show_reposts: false,
-    });
+
+    // Su iOS dopo l'unlock diamo 120ms di margine prima del load,
+    // così il browser ha il tempo di registrare lo stato "sbloccato"
+    const delay = audioUnlocked ? 120 : 0;
+
+    setTimeout(() => {
+        widget.load(song.url, {
+            auto_play: true,
+            show_artwork: false,
+            buying: false,
+            liking: false,
+            download: false,
+            sharing: false,
+            show_comments: false,
+            show_user: false,
+            show_reposts: false,
+        });
+
+        // Doppia sicurezza: su iOS il load con auto_play a volte non basta,
+        // quindi dopo che il widget segnala READY forziamo un play() esplicito
+        widget.bind(SC.Widget.Events.READY, function () {
+            widget.play();
+            // Unbind subito per non moltiplicare i listener a ogni cambio traccia
+            widget.unbind(SC.Widget.Events.READY);
+        });
+    }, delay);
 }
 
 function insertCD(index) {
@@ -205,6 +235,13 @@ window.onresize = alignGlow;
 function startDrag(e) {
     const target = e.target.closest('.cd-img');
     if (!target) return;
+
+    // *** FIX iOS SAFARI ***
+    // Chiamiamo unlockAudioContext() QUI, dentro touchstart/mousedown,
+    // che è l'unico evento considerato "gesto diretto" da Safari.
+    // Il touchend del drop NON viene accettato da Safari per sbloccare l'audio.
+    unlockAudioContext();
+
     isDragging = true;
     let idx = target.dataset.index;
     dragClone = target.cloneNode(true);
