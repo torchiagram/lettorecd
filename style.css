@@ -244,7 +244,6 @@ body {
     pointer-events: none; 
     filter: drop-shadow(0 20px 30px rgba(0,0,0,0.3)); 
 }
-
 /* ===== CONSENT OVERLAY ===== */
 .consent-overlay {
     position: fixed;
@@ -282,16 +281,35 @@ body {
     font-size: 28px;
     font-weight: 900;
 }
-.consent-btn {
-    border: none;
+/* Wrapper: posizione relative per sovrapporre l'iframe */
+.consent-btn-wrapper {
+    position: relative;
     background: var(--bg-color);
     box-shadow: 6px 6px 12px #b8b8b8, -6px -6px 12px #ffffff;
     border-radius: 50px;
     padding: 14px 32px;
-    font-size: 15px;
-    font-weight: 700;
+    min-width: 200px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
-.consent-btn:active {
-    box-shadow: inset 4px 4px 8px #b8b8b8, inset -4px -4px 8px #ffffff;
+.consent-btn-label {
+    font-size: 15px;
+    font-weight: 700;
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+/* L'iframe copre tutto il bottone — tap diretto su SC, Safari lo accetta */
+.sc-unlock-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    border: none;
+    border-radius: 50px;
+    z-index: 2;
 }
