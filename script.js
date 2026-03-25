@@ -109,15 +109,17 @@ let widget             = null;
 function initWidget() {
     widget = SC.Widget(document.getElementById('sc-widget'));
 
-    widget.bind(SC.Widget.Events.FINISH, function () {
-        nextTrack();
+    widget.bind(SC.Widget.Events.READY, function () {
+        // Widget pronto: ora il click sblocca davvero l'audio su Safari
+        document.getElementById('consentBtn').addEventListener('click', function () {
+            widget.play();
+            setTimeout(() => widget.pause(), 200);
+            document.getElementById('consentOverlay').classList.add('hidden');
+        });
     });
 
-    // Tap iniziale: sblocca autoplay su Safari (richiede gesto utente esplicito)
-    document.getElementById('consentBtn').addEventListener('click', function () {
-        widget.play();                          // gesto utente → Safari sblocca audio
-        setTimeout(() => widget.pause(), 200);  // subito pausa, nessuna canzone parte
-        document.getElementById('consentOverlay').classList.add('hidden');
+    widget.bind(SC.Widget.Events.FINISH, function () {
+        nextTrack();
     });
 }
 window.addEventListener('load', initWidget);
