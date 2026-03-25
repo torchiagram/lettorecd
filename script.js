@@ -1,7 +1,7 @@
 const playlists = [
     {
         songs: [
-            { title: 'Dammit - Blink 182',                       url: 'https://soundcloud.com/blink-182/dammit-album-version' },
+            { title: 'Dammit - Blink 182',                        url: 'https://soundcloud.com/blink-182/dammit-album-version' },
             { title: 'Adams Song - Blink 182',                    url: 'https://soundcloud.com/blink-182/adams-song-album-version' },
             { title: 'All the Small Things - Blink 182',          url: 'https://soundcloud.com/scorpionium/all-the-small-things' },
             { title: 'In Too Deep - Sum 41',                      url: 'https://soundcloud.com/steadyeddyyy/sum41-in-too-deep' },
@@ -77,206 +77,221 @@ const playlists = [
     }
 ];
 
-// --- Elementi DOM ---
-const scroller      = document.getElementById('cdScroller');
-const dropZone      = document.getElementById('dropZone');
-const glow          = document.getElementById('glowEffect');
-const overlay       = document.getElementById('darkOverlay');
-const activeWrapper = document.getElementById('activeCdWrapper');
-const playBtn       = document.getElementById('playBtn');
-const playIcon      = document.getElementById('playIcon');
-const trackTitle    = document.getElementById('trackTitle');
-const silentAudio   = document.getElementById('silentAudio');
+document.addEventListener('DOMContentLoaded', function () {
 
-// POPUP: elementi già nel DOM dall'HTML - non creati da JS
-const permPopup     = document.getElementById('permPopup');
-const permBtn       = document.getElementById('permBtn');
+    // --- Elementi DOM ---
+    var scroller      = document.getElementById('cdScroller');
+    var dropZone      = document.getElementById('dropZone');
+    var glow          = document.getElementById('glowEffect');
+    var overlay       = document.getElementById('darkOverlay');
+    var activeWrapper = document.getElementById('activeCdWrapper');
+    var playBtn       = document.getElementById('playBtn');
+    var playIcon      = document.getElementById('playIcon');
+    var trackTitle    = document.getElementById('trackTitle');
+    var silentAudio   = document.getElementById('silentAudio');
+    var permPopup     = document.getElementById('permPopup');
+    var permBtn       = document.getElementById('permBtn');
 
-let dragClone          = null;
-let currentPlaylistIdx = -1;
-let currentSongIdx     = 0;
-let isDragging         = false;
-let isPlaying          = false;
-let widget             = null;
-let audioUnlocked      = false;
-let popupOpen          = false;
-let pendingCallback    = null; // callback da eseguire dopo unlock
+    var dragClone          = null;
+    var currentPlaylistIdx = -1;
+    var currentSongIdx     = 0;
+    var isDragging         = false;
+    var isPlaying          = false;
+    var widget             = null;
+    var audioUnlocked      = false;
+    var popupOpen          = false;
+    var pendingCallback    = null;
 
-// --- Inizializza Widget ---
-function initWidget() {
-    widget = SC.Widget(document.getElementById('sc-widget'));
-    widget.bind(SC.Widget.Events.FINISH, nextTrack);
-}
-window.addEventListener('load', initWidget);
-window.addEventListener('load', alignGlow);
-
-// --- GESTIONE POPUP (elemento statico) ---
-// Il pulsante è già nel DOM: iOS lo tratta come elemento nativo, nessun problema
-permBtn.addEventListener('click', doUnlock);
-permBtn.addEventListener('touchend', function(e) {
-    e.preventDefault(); // previene il doppio fire click+touchend
-    doUnlock();
-});
-
-function doUnlock() {
-    if (audioUnlocked) return;
-    audioUnlocked = true;
-    silentAudio.play().catch(() => {});
-    hidePopup();
-    if (pendingCallback) {
-        var cb = pendingCallback;
-        pendingCallback = null;
-        cb();
-    }
-}
-
-function showPopup(callback) {
-    pendingCallback = callback;
-    popupOpen = true;
-    permPopup.style.display = 'flex';
-}
-
-function hidePopup() {
-    popupOpen = false;
-    permPopup.style.display = 'none';
-}
-
-// --- Popola Scroller ---
-playlists.forEach((_, i) => {
-    const div = document.createElement('div');
-    div.className = 'cd-item';
-    div.innerHTML = `<img src="img/playlist_${i + 1}.png" data-index="${i}" class="cd-img" draggable="false">`;
-    scroller.appendChild(div);
-});
-
-// --- Carica traccia ---
-function loadTrack(plIdx, sIdx) {
-    const song = playlists[plIdx].songs[sIdx];
-    trackTitle.innerText = song.title;
-    if (!widget) return;
-    widget.load(song.url, {
-        auto_play: true,
-        show_artwork: false, buying: false, liking: false,
-        download: false, sharing: false, show_comments: false,
-        show_user: false, show_reposts: false,
+    // --- Inizializza Widget SC ---
+    window.addEventListener('load', function () {
+        widget = SC.Widget(document.getElementById('sc-widget'));
+        widget.bind(SC.Widget.Events.FINISH, nextTrack);
+        alignGlow();
     });
-}
 
-// --- Inserisci CD ---
-function insertCD(index) {
-    currentPlaylistIdx = parseInt(index);
-    currentSongIdx     = 0;
-    activeWrapper.innerHTML = `<img src="img/playlist_${currentPlaylistIdx + 1}.png" id="spinningCd">`;
+    // --- Popola Scroller con i CD ---
+    playlists.forEach(function (_, i) {
+        var div = document.createElement('div');
+        div.className = 'cd-item';
+        var img = document.createElement('img');
+        img.src = 'img/playlist_' + (i + 1) + '.png';
+        img.dataset.index = i;
+        img.className = 'cd-img';
+        img.draggable = false;
+        div.appendChild(img);
+        scroller.appendChild(div);
+    });
 
-    const play = function() {
+    // --- Carica traccia SC ---
+    function loadTrack(plIdx, sIdx) {
+        var song = playlists[plIdx].songs[sIdx];
+        trackTitle.innerText = song.title;
+        if (!widget) return;
+        widget.load(song.url, {
+            auto_play: true,
+            show_artwork: false, buying: false, liking: false,
+            download: false, sharing: false, show_comments: false,
+            show_user: false, show_reposts: false,
+        });
+    }
+
+    // --- POPUP: elementi già nel DOM dall'HTML ---
+    // iOS riconosce il tap solo su elementi nativi esistenti al load
+
+    function showPopup(callback) {
+        pendingCallback = callback;
+        popupOpen = true;
+        permPopup.style.display = 'flex';
+    }
+
+    function hidePopup() {
+        popupOpen = false;
+        permPopup.style.display = 'none';
+    }
+
+    function doUnlock() {
+        if (audioUnlocked) return;
+        audioUnlocked = true;
+        silentAudio.play().catch(function () {});
+        hidePopup();
+        if (pendingCallback) {
+            var cb = pendingCallback;
+            pendingCallback = null;
+            cb();
+        }
+    }
+
+    // Sia touchend che click — preventDefault su touchend per evitare doppio fire
+    permBtn.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        doUnlock();
+    });
+    permBtn.addEventListener('click', function () {
+        doUnlock();
+    });
+
+    // --- Inserisci CD ---
+    function insertCD(index) {
+        currentPlaylistIdx = parseInt(index);
+        currentSongIdx = 0;
+        activeWrapper.innerHTML = '<img src="img/playlist_' + (currentPlaylistIdx + 1) + '.png" id="spinningCd">';
+
+        var play = function () {
+            loadTrack(currentPlaylistIdx, currentSongIdx);
+            isPlaying = true;
+            if (playIcon) playIcon.src = 'img/pause.png';
+        };
+
+        if (!audioUnlocked) {
+            showPopup(play);
+        } else {
+            play();
+        }
+    }
+
+    // --- Controlli player ---
+    playBtn.addEventListener('click', function () {
+        var cd = document.getElementById('spinningCd');
+        if (!widget || currentPlaylistIdx === -1) return;
+        if (isPlaying) {
+            widget.pause();
+            isPlaying = false;
+            if (playIcon) playIcon.src = 'img/play.png';
+            if (cd) cd.classList.add('paused');
+        } else {
+            widget.play();
+            isPlaying = true;
+            if (playIcon) playIcon.src = 'img/pause.png';
+            if (cd) cd.classList.remove('paused');
+        }
+    });
+
+    function nextTrack() {
+        if (currentPlaylistIdx === -1) return;
+        currentSongIdx++;
+        if (currentSongIdx >= playlists[currentPlaylistIdx].songs.length) currentSongIdx = 0;
         loadTrack(currentPlaylistIdx, currentSongIdx);
         isPlaying = true;
         if (playIcon) playIcon.src = 'img/pause.png';
-    };
-
-    if (!audioUnlocked) {
-        showPopup(play);
-    } else {
-        play();
     }
-}
 
-// --- Controlli ---
-playBtn.onclick = function () {
-    const cd = document.getElementById('spinningCd');
-    if (!widget || currentPlaylistIdx === -1) return;
-    if (isPlaying) {
-        widget.pause();
-        isPlaying = false;
-        if (playIcon) playIcon.src = 'img/play.png';
-        if (cd) cd.classList.add('paused');
-    } else {
-        widget.play();
+    function prevTrack() {
+        if (currentPlaylistIdx === -1) return;
+        currentSongIdx--;
+        if (currentSongIdx < 0) currentSongIdx = playlists[currentPlaylistIdx].songs.length - 1;
+        loadTrack(currentPlaylistIdx, currentSongIdx);
         isPlaying = true;
         if (playIcon) playIcon.src = 'img/pause.png';
-        if (cd) cd.classList.remove('paused');
     }
-};
 
-function nextTrack() {
-    if (currentPlaylistIdx === -1) return;
-    currentSongIdx++;
-    if (currentSongIdx >= playlists[currentPlaylistIdx].songs.length) currentSongIdx = 0;
-    loadTrack(currentPlaylistIdx, currentSongIdx);
-    isPlaying = true;
-    if (playIcon) playIcon.src = 'img/pause.png';
-}
+    document.getElementById('nextBtn').addEventListener('click', nextTrack);
+    document.getElementById('prevBtn').addEventListener('click', prevTrack);
 
-function prevTrack() {
-    if (currentPlaylistIdx === -1) return;
-    currentSongIdx--;
-    if (currentSongIdx < 0) currentSongIdx = playlists[currentPlaylistIdx].songs.length - 1;
-    loadTrack(currentPlaylistIdx, currentSongIdx);
-    isPlaying = true;
-    if (playIcon) playIcon.src = 'img/pause.png';
-}
-
-document.getElementById('nextBtn').onclick = nextTrack;
-document.getElementById('prevBtn').onclick = prevTrack;
-
-// --- Drag & Drop ---
-function alignGlow() {
-    const rect = dropZone.getBoundingClientRect();
-    glow.style.top  = `${rect.top  + rect.height / 2}px`;
-    glow.style.left = `${rect.left + rect.width  / 2}px`;
-}
-window.onresize = alignGlow;
-
-function startDrag(e) {
-    if (popupOpen) return;
-    const target = e.target.closest('.cd-img');
-    if (!target) return;
-    isDragging = true;
-    const idx  = target.dataset.index;
-    dragClone  = target.cloneNode(true);
-    dragClone.id = 'draggingCD';
-    document.body.appendChild(dragClone);
-    target.classList.add('hidden');
-    overlay.classList.add('active');
-    glow.classList.add('active');
-    dragClone.dataset.tempIndex = idx;
-    moveDrag(e);
-}
-
-function moveDrag(e) {
-    if (!isDragging || !dragClone) return;
-    const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-    dragClone.style.left = `${x - 70}px`;
-    dragClone.style.top  = `${y - 70}px`;
-}
-
-function endDrag(e) {
-    if (popupOpen) return;
-    if (!isDragging || !dragClone) return;
-    const x = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
-    const y = e.type.includes('touch') ? e.changedTouches[0].clientY : e.clientY;
-    const rect         = dropZone.getBoundingClientRect();
-    const droppedIndex = dragClone.dataset.tempIndex;
-    document.querySelectorAll('.cd-img').forEach(img => img.classList.remove('hidden'));
-    if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
-        insertCD(droppedIndex);
+    // --- Glow alignment ---
+    function alignGlow() {
+        var rect = dropZone.getBoundingClientRect();
+        glow.style.top  = (rect.top  + rect.height / 2) + 'px';
+        glow.style.left = (rect.left + rect.width  / 2) + 'px';
     }
-    cleanup();
-}
+    window.addEventListener('resize', alignGlow);
 
-function cleanup() {
-    if (dragClone) dragClone.remove();
-    dragClone  = null;
-    isDragging = false;
-    overlay.classList.remove('active');
-    glow.classList.remove('active');
-}
+    // --- Drag & Drop ---
+    function startDrag(e) {
+        if (popupOpen) return;
+        var target = e.target.closest('.cd-img');
+        if (!target) return;
 
-// --- Listener globali drag ---
-scroller.addEventListener('touchstart', startDrag, { passive: false });
-window.addEventListener('touchmove',   moveDrag,  { passive: false });
-window.addEventListener('touchend',    endDrag);
-scroller.addEventListener('mousedown', startDrag);
-window.addEventListener('mousemove',   moveDrag);
-window.addEventListener('mouseup',     endDrag);
+        // Su touchstart previeni scroll dello scroller durante drag
+        if (e.type === 'touchstart') e.preventDefault();
+
+        isDragging = true;
+        var idx = target.dataset.index;
+        dragClone = target.cloneNode(true);
+        dragClone.id = 'draggingCD';
+        document.body.appendChild(dragClone);
+        target.classList.add('hidden');
+        overlay.classList.add('active');
+        glow.classList.add('active');
+        dragClone.dataset.tempIndex = idx;
+        moveDrag(e);
+    }
+
+    function moveDrag(e) {
+        if (!isDragging || !dragClone) return;
+        var x = e.type.indexOf('touch') !== -1 ? e.touches[0].clientX : e.clientX;
+        var y = e.type.indexOf('touch') !== -1 ? e.touches[0].clientY : e.clientY;
+        dragClone.style.left = (x - 70) + 'px';
+        dragClone.style.top  = (y - 70) + 'px';
+    }
+
+    function endDrag(e) {
+        if (popupOpen) return;
+        if (!isDragging || !dragClone) return;
+        var x = e.type.indexOf('touch') !== -1 ? e.changedTouches[0].clientX : e.clientX;
+        var y = e.type.indexOf('touch') !== -1 ? e.changedTouches[0].clientY : e.clientY;
+        var rect = dropZone.getBoundingClientRect();
+        var droppedIndex = dragClone.dataset.tempIndex;
+        document.querySelectorAll('.cd-img').forEach(function (img) { img.classList.remove('hidden'); });
+        if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+            insertCD(droppedIndex);
+        }
+        cleanup();
+    }
+
+    function cleanup() {
+        if (dragClone) dragClone.remove();
+        dragClone  = null;
+        isDragging = false;
+        overlay.classList.remove('active');
+        glow.classList.remove('active');
+    }
+
+    // --- Attacca listener drag ---
+    scroller.addEventListener('touchstart', startDrag, { passive: false });
+    window.addEventListener('touchmove',   moveDrag,  { passive: false });
+    window.addEventListener('touchend',    endDrag);
+    scroller.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove',   moveDrag);
+    window.addEventListener('mouseup',     endDrag);
+
+}); // fine DOMContentLoaded
