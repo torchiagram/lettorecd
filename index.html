@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Discman">
-    <link rel="apple-touch-icon" href="img/icon-180.png">
     <title>Discman Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="dark-overlay" id="darkOverlay"></div>
+    
     <div class="glow-effect" id="glowEffect">
         <div class="circle c1"></div>
         <div class="circle c2"></div>
         <div class="circle c3"></div>
     </div>
+
     <div class="app-wrapper">
         <header><h1 class="main-title">Discman</h1></header>
         <main class="player-container">
@@ -26,17 +27,12 @@
             </div>
             <div class="status-text"><p id="trackTitle">Scegli la Playlist</p></div>
             <div class="audio-controls">
-                <button id="prevBtn" class="neu-btn btn-sm">
-                    <img src="img/prev.png" width="20" alt="Indietro">
-                </button>
-                <button id="playBtn" class="neu-btn btn-lg">
-                    <img src="img/play.png" id="playIcon" width="30">
-                </button>
-                <button id="nextBtn" class="neu-btn btn-sm">
-                    <img src="img/next.png" width="20" alt="Avanti">
-                </button>
+                <button id="prevBtn" class="neu-btn btn-sm"><img src="img/prev.png" width="20"></button>
+                <button id="playBtn" class="neu-btn btn-lg"><img src="img/play.png" id="playIcon" width="30"></button>
+                <button id="nextBtn" class="neu-btn btn-sm"><img src="img/next.png" width="20"></button>
             </div>
         </main>
+        
         <footer class="scroller-section">
             <div class="cd-scroller-mask">
                 <div class="cd-scroller" id="cdScroller"></div>
@@ -44,15 +40,15 @@
         </footer>
     </div>
 
-    <div id="permPopup" style="display:none; position:fixed; inset:0; z-index:999999; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
-        <div style="background:#dcdcdc; border-radius:30px; padding:40px 20px; width:280px; text-align:center; box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;">
-            <div style="font-size:60px; margin-bottom:20px; animation: spin 4s linear infinite;">💿</div>
-            <p style="margin:0 0 25px 0; font-weight:900; font-size:18px; font-family:sans-serif; color:#333;">Pronto a suonare?</p>
-            <button id="permBtn" style="border:none; background:#dcdcdc; box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff; border-radius:50px; padding:15px 40px; font-size:16px; font-weight:900; color:#00ff88; cursor:pointer; -webkit-tap-highlight-color:transparent;">AVVIA LETTORE</button>
+    <div id="permPopup" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">💿</div>
+            <h2 class="modal-title">Pronto a suonare?</h2>
+            <button id="permBtn" class="modal-btn">SBLOCCA AUDIO</button>
         </div>
     </div>
 
-    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false" width="0" height="0" style="display:none; visibility:hidden;" allow="autoplay"></iframe>
+    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false" width="0" height="0" style="display:none" allow="autoplay"></iframe>
     
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <script src="script.js"></script>
