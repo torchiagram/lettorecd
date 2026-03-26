@@ -30,9 +30,7 @@
                     <img src="img/prev.png" width="20" alt="Indietro">
                 </button>
                 <button id="playBtn" class="neu-btn btn-lg">
-                    <div id="playIconContainer">
-                        <img src="img/play.png" id="playIcon" width="30">
-                    </div>
+                    <img src="img/play.png" id="playIcon" width="30">
                 </button>
                 <button id="nextBtn" class="neu-btn btn-sm">
                     <img src="img/next.png" width="20" alt="Avanti">
@@ -45,25 +43,17 @@
             </div>
         </footer>
     </div>
-    <!--
-        POPUP AUDIO — DEVE STARE NELL'HTML, NON CREATO DA JS.
-        iOS sblocca l'audio solo se il tap avviene su un elemento
-        che esisteva nel DOM al momento del caricamento della pagina.
-    -->
-    <div id="permPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:999999; align-items:center; justify-content:center; background:rgba(0,0,0,0.75); touch-action:manipulation;">
-        <div style="background:#dcdcdc; border-radius:24px; padding:32px 28px; max-width:280px; width:80%; text-align:center; box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff; display:flex; flex-direction:column; gap:16px; align-items:center;">
-            <div style="font-size:48px;">💿</div>
-            <p style="margin:0; font-weight:700; font-size:15px; line-height:1.5; font-family:sans-serif;">Tocca per riprodurre musica</p>
-            <button id="permBtn" type="button" style="border:none; outline:none; cursor:pointer; background:#dcdcdc; box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff; border-radius:50px; padding:14px 32px; font-size:16px; font-weight:700; font-family:sans-serif; touch-action:manipulation; -webkit-appearance:none; min-width:180px; min-height:54px;">▶ Sì, riproduci</button>
+
+    <div id="permPopup" style="display:none; position:fixed; inset:0; z-index:999999; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+        <div style="background:#dcdcdc; border-radius:30px; padding:40px 20px; width:280px; text-align:center; box-shadow:12px 12px 24px #b8b8b8,-12px -12px 24px #ffffff;">
+            <div style="font-size:60px; margin-bottom:20px; animation: spin 4s linear infinite;">💿</div>
+            <p style="margin:0 0 25px 0; font-weight:900; font-size:18px; font-family:sans-serif; color:#333;">Pronto a suonare?</p>
+            <button id="permBtn" style="border:none; background:#dcdcdc; box-shadow:6px 6px 12px #b8b8b8,-6px -6px 12px #ffffff; border-radius:50px; padding:15px 40px; font-size:16px; font-weight:900; color:#00ff88; cursor:pointer; -webkit-tap-highlight-color:transparent;">AVVIA LETTORE</button>
         </div>
     </div>
-    <!-- SoundCloud Widget nascosto -->
-    <iframe id="sc-widget"
-        src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false"
-        width="0" height="0" style="display:none" allow="autoplay">
-    </iframe>
-    <!-- Audio silenzioso per sblocco contesto audio iOS -->
-    <audio id="silentAudio" src="data:audio/mp3;base64,//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" preload="auto"></audio>
+
+    <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https://soundcloud.com/blink-182/dammit&auto_play=false" width="0" height="0" style="display:none; visibility:hidden;" allow="autoplay"></iframe>
+    
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <script src="script.js"></script>
 </body>
