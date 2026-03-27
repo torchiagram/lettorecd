@@ -16,82 +16,87 @@ document.addEventListener('DOMContentLoaded', function () {
     const trackTitle = document.getElementById('trackTitle');
     const permPopup = document.getElementById('permPopup');
     const permBtn = document.getElementById('permBtn');
+    const silentAudio = document.getElementById('silentAudio');
 
-    let widget = SC.Widget(document.getElementById('sc-widget'));
+    let iframe = document.getElementById('sc-widget');
+    let widget = SC.Widget(iframe);
+    
     let currentPlaylistIdx = -1;
     let currentSongIdx = 0;
     let isPlaying = false;
+    let audioUnlocked = false;
     let isDragging = false;
     let dragClone = null;
-    let audioUnlocked = false;
 
-    // --- ALIGN GLOW ---
+    // --- POSIZIONAMENTO GLOW ---
     function alignGlow() {
         const rect = dropZone.getBoundingClientRect();
         glow.style.left = (rect.left + rect.width / 2) + 'px';
         glow.style.top = (rect.top + rect.height / 2) + 'px';
     }
-    window.addEventListener('resize', alignGlow);
-    setTimeout(alignGlow, 500);
 
-    // --- INIT WIDGET ---
-    widget.bind(SC.Widget.Events.READY, function() {
-        if (isPlaying) widget.play();
-    });
-    
-    widget.bind(SC.Widget.Events.FINISH, nextTrack);
-
-    // --- POPOLA SCROLLER ---
-    playlists.forEach((_, i) => {
-        const div = document.createElement('div');
-        div.className = 'cd-item';
-        const img = document.createElement('img');
-        img.src = `img/playlist_${i + 1}.png`;
-        img.dataset.index = i;
-        img.className = 'cd-img';
-        img.draggable = false;
-        div.appendChild(img);
-        scroller.appendChild(div);
-    });
-
-    // --- FUNZIONE CARICAMENTO ---
-    function loadTrack(plIdx, sIdx) {
-        const song = playlists[plIdx].songs[sIdx];
-        trackTitle.innerText = song.title;
-
-        // Su Safari iOS il widget.load con auto_play:true funziona se l'utente ha sbloccato l'audio PRIMA
-        widget.load(song.url, {
-            auto_play: true,
-            show_artwork: false,
-            buying: false, liking: false, download: false, 
-            sharing: false, show_comments: false, show_user: false
-        });
-
-        // Cambio icone e stati subito, senza aspettare trigger lenti
-        isPlaying = true;
-        if (playIcon) playIcon.src = 'img/pause.png';
+    // --- FUNZIONI PLAYER ---
+    function updateUI(state) {
+        isPlaying = state;
+        playIcon.src = isPlaying ? 'img/pause.png' : 'img/play.png';
         const cd = document.getElementById('spinningCd');
-        if (cd) cd.classList.remove('paused');
-    }
-
-    // --- SBLOCCO POPUP (Funziona come prima) ---
-    function unlockAndStart() {
-        audioUnlocked = true;
-        permPopup.style.display = 'none';
-
-        if (currentPlaylistIdx !== -1) {
-            loadTrack(currentPlaylistIdx, currentSongIdx);
-            // Il trucco di prima: forziamo il widget a rimettersi in moto sul click
-            setTimeout(() => widget.play(), 500);
+        if (cd) {
+            if (isPlaying) cd.classList.remove('paused');
+            else cd.classList.add('paused');
         }
     }
 
-    permBtn.addEventListener('click', unlockAndStart);
-    permBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        unlockAndStart();
+    function loadTrack(plIdx, sIdx) {
+        const song = playlists[plIdx].songs[sIdx];
+        trackTitle.innerText = song.title;
+        
+        // Su Safari, chiamare load resetta lo stato. 
+        // Impostiamo auto_play: true e speriamo nello sblocco precedente
+        widget.load(song.url, {
+            auto_play: true,
+            show_artwork: false,
+            show_comments: false,
+            show_user: false
+        });
+        
+        updateUI(true);
+    }
+
+    // --- BIND EVENTI WIDGET (UNA VOLTA SOLA) ---
+    widget.bind(SC.Widget.Events.READY, () => {
+        if (isPlaying && audioUnlocked) widget.play();
     });
 
+    widget.bind(SC.Widget.Events.PLAY, () => updateUI(true));
+    widget.bind(SC.Widget.Events.PAUSE, () => updateUI(false));
+    widget.bind(SC.Widget.Events.FINISH, () => nextTrack());
+
+    // --- SBLOCCO SAFARI (IL CUORE DEL FIX) ---
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        
+        // 1. Sblocca audio nativo
+        silentAudio.play().catch(()=>{});
+        
+        // 2. Forza il widget di SoundCloud a suonare (anche se è vuoto o ha la traccia di default)
+        widget.play();
+        
+        audioUnlocked = true;
+        permPopup.style.display = 'none';
+
+        // 3. Se un CD era già stato droppato, carica la traccia vera
+        if (currentPlaylistIdx !== -1) {
+            loadTrack(currentPlaylistIdx, currentSongIdx);
+        }
+    }
+
+    permBtn.addEventListener('click', unlockAudio);
+    permBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        unlockAudio();
+    });
+
+    // --- LOGICA CD ---
     function insertCD(index) {
         currentPlaylistIdx = parseInt(index);
         currentSongIdx = 0;
@@ -102,23 +107,12 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             loadTrack(currentPlaylistIdx, currentSongIdx);
         }
-        alignGlow();
     }
 
     // --- CONTROLLI ---
     playBtn.addEventListener('click', () => {
         if (currentPlaylistIdx === -1) return;
-        if (isPlaying) {
-            widget.pause();
-            isPlaying = false;
-            playIcon.src = 'img/play.png';
-            document.getElementById('spinningCd')?.classList.add('paused');
-        } else {
-            isPlaying = true;
-            playIcon.src = 'img/pause.png';
-            document.getElementById('spinningCd')?.classList.remove('paused');
-            widget.play();
-        }
+        widget.toggle();
     });
 
     function nextTrack() {
@@ -136,17 +130,27 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
 
-    // --- DRAG & DROP ---
+    // --- POPOLA SCROLLER ---
+    playlists.forEach((_, i) => {
+        const div = document.createElement('div');
+        div.className = 'cd-item';
+        div.innerHTML = `<img src="img/playlist_${i+1}.png" class="cd-img" data-index="${i}" draggable="false">`;
+        scroller.appendChild(div);
+    });
+
+    // --- DRAG AND DROP ---
     function startDrag(e) {
         const target = e.target.closest('.cd-img');
         if (!target) return;
         if (e.type === 'touchstart') e.preventDefault();
+        
         isDragging = true;
         dragClone = target.cloneNode(true);
         dragClone.id = 'draggingCD';
         document.body.appendChild(dragClone);
+        
         target.classList.add('hidden');
-        overlay.classList.add('active'); // Mantiene overlay nero
+        overlay.classList.add('active'); 
         glow.classList.add('active');
         dragClone.dataset.tempIndex = target.dataset.index;
         alignGlow();
@@ -185,4 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
     scroller.addEventListener('mousedown', startDrag);
     window.addEventListener('mousemove', moveDrag);
     window.addEventListener('mouseup', endDrag);
+
+    window.addEventListener('resize', alignGlow);
+    setTimeout(alignGlow, 500);
 });
