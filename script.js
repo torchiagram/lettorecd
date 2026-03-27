@@ -16,10 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const trackTitle = document.getElementById('trackTitle');
     const permPopup = document.getElementById('permPopup');
     const permBtn = document.getElementById('permBtn');
-    const silentAudio = document.getElementById('silentAudio');
 
-    let iframe = document.getElementById('sc-widget');
-    let widget = SC.Widget(iframe);
+    const widget = SC.Widget(document.getElementById('sc-widget'));
     
     let currentPlaylistIdx = -1;
     let currentSongIdx = 0;
@@ -28,16 +26,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let isDragging = false;
     let dragClone = null;
 
-    // --- POSIZIONAMENTO GLOW ---
+    // --- POSIZIONAMENTO ---
     function alignGlow() {
         const rect = dropZone.getBoundingClientRect();
         glow.style.left = (rect.left + rect.width / 2) + 'px';
         glow.style.top = (rect.top + rect.height / 2) + 'px';
     }
 
-    // --- FUNZIONI PLAYER ---
-    function updateUI(state) {
-        isPlaying = state;
+    // --- LOGICA PLAYER ---
+    function updateState(playing) {
+        isPlaying = playing;
         playIcon.src = isPlaying ? 'img/pause.png' : 'img/play.png';
         const cd = document.getElementById('spinningCd');
         if (cd) {
@@ -50,53 +48,51 @@ document.addEventListener('DOMContentLoaded', function () {
         const song = playlists[plIdx].songs[sIdx];
         trackTitle.innerText = song.title;
         
-        // Su Safari, chiamare load resetta lo stato. 
-        // Impostiamo auto_play: true e speriamo nello sblocco precedente
+        // Carichiamo con auto_play: true. 
+        // Se l'audio è già sbloccato dal popup, Safari lo lascerà suonare.
         widget.load(song.url, {
             auto_play: true,
             show_artwork: false,
-            show_comments: false,
-            show_user: false
+            buying: false, liking: false, download: false, 
+            sharing: false, show_comments: false, show_user: false
         });
         
-        updateUI(true);
+        updateState(true);
     }
 
-    // --- BIND EVENTI WIDGET (UNA VOLTA SOLA) ---
+    // Bind degli eventi una volta sola
+    widget.bind(SC.Widget.Events.PLAY, () => updateState(true));
+    widget.bind(SC.Widget.Events.PAUSE, () => updateState(false));
+    widget.bind(SC.Widget.Events.FINISH, () => nextTrack());
     widget.bind(SC.Widget.Events.READY, () => {
-        if (isPlaying && audioUnlocked) widget.play();
+        if (isPlaying) widget.play();
     });
 
-    widget.bind(SC.Widget.Events.PLAY, () => updateUI(true));
-    widget.bind(SC.Widget.Events.PAUSE, () => updateUI(false));
-    widget.bind(SC.Widget.Events.FINISH, () => nextTrack());
-
-    // --- SBLOCCO SAFARI (IL CUORE DEL FIX) ---
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        
-        // 1. Sblocca audio nativo
-        silentAudio.play().catch(()=>{});
-        
-        // 2. Forza il widget di SoundCloud a suonare (anche se è vuoto o ha la traccia di default)
-        widget.play();
-        
+    // --- IL FIX PER SAFARI ---
+    function handleUnlock() {
         audioUnlocked = true;
         permPopup.style.display = 'none';
 
-        // 3. Se un CD era già stato droppato, carica la traccia vera
+        // Passo fondamentale: il widget deve "suonare" qualcosa IMMEDIATAMENTE al click.
+        // Questo sblocca il canale audio per il widget permanentemente.
+        widget.play();
+
         if (currentPlaylistIdx !== -1) {
             loadTrack(currentPlaylistIdx, currentSongIdx);
+        } else {
+            // Se non c'è ancora un CD, lo mettiamo in pausa dopo un istante
+            // ma il "permesso" ormai è stato preso.
+            setTimeout(() => widget.pause(), 500);
         }
     }
 
-    permBtn.addEventListener('click', unlockAudio);
+    permBtn.addEventListener('click', handleUnlock);
     permBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        unlockAudio();
-    });
+        handleUnlock();
+    }, { passive: false });
 
-    // --- LOGICA CD ---
+    // --- INTERAZIONI ---
     function insertCD(index) {
         currentPlaylistIdx = parseInt(index);
         currentSongIdx = 0;
@@ -107,9 +103,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             loadTrack(currentPlaylistIdx, currentSongIdx);
         }
+        alignGlow();
     }
 
-    // --- CONTROLLI ---
     playBtn.addEventListener('click', () => {
         if (currentPlaylistIdx === -1) return;
         widget.toggle();
@@ -130,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('nextBtn').addEventListener('click', nextTrack);
     document.getElementById('prevBtn').addEventListener('click', prevTrack);
 
-    // --- POPOLA SCROLLER ---
+    // --- SCROLLER & DRAG ---
     playlists.forEach((_, i) => {
         const div = document.createElement('div');
         div.className = 'cd-item';
@@ -138,17 +134,14 @@ document.addEventListener('DOMContentLoaded', function () {
         scroller.appendChild(div);
     });
 
-    // --- DRAG AND DROP ---
     function startDrag(e) {
         const target = e.target.closest('.cd-img');
         if (!target) return;
         if (e.type === 'touchstart') e.preventDefault();
-        
         isDragging = true;
         dragClone = target.cloneNode(true);
         dragClone.id = 'draggingCD';
         document.body.appendChild(dragClone);
-        
         target.classList.add('hidden');
         overlay.classList.add('active'); 
         glow.classList.add('active');
@@ -170,17 +163,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
         const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
         const rect = dropZone.getBoundingClientRect();
-        
         if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
             insertCD(dragClone.dataset.tempIndex);
         }
-        
         document.querySelectorAll('.cd-img').forEach(img => img.classList.remove('hidden'));
-        dragClone.remove();
-        dragClone = null;
-        isDragging = false;
-        overlay.classList.remove('active');
-        glow.classList.remove('active');
+        dragClone.remove(); dragClone = null; isDragging = false;
+        overlay.classList.remove('active'); glow.classList.remove('active');
     }
 
     scroller.addEventListener('touchstart', startDrag, { passive: false });
